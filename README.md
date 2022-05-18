@@ -9,12 +9,12 @@ This is the first ever Half Precision Floating Point Unit of IEEE-754 standard d
 
 Directory Structure
 +-- verlog                          #   User verilog Directory
-�   +-- rtl                         #   RTL
-�   +-- dv                          #   Design Verification
-�   +-- gl                          #   Gate Level Netlis
+    +-- rtl                         #   RTL
+    +-- dv                          #   Design Verification
+    +-- gl                          #   Gate Level Netlis
 The Floating Point Unit Source Code is avaialable here
 +-- verlog                               #   User verilog Directory
-�   +-- rtl                              #   RTL
+    +-- rtl                              #   RTL
 |       +-- user_project_wrapper.v       #   User Project Wrapper source file
 |       +-- user_proj_example.v          #   User Project Example source file
 |       +-- FPU                          #   Floating Point Unit folder
@@ -22,26 +22,26 @@ The Floating Point Unit Source Code is avaialable here
 |           +--                                     #   1KB sram
 The Design Verification Testbench is available here
 +-- verlog                               #   User verilog Directory
-�   +-- dv                               #   Design Verification
-�       +-- FPU                          #   Design Test Directory
-�       +-- hex                          #   Hex files folder
-�       +-- asm                          #   Assmebly files folder
+    +-- dv                               #   Design Verification
+        +-- FPU                          #   Design Test Directory
+        +-- hex                          #   Hex files folder
+        +-- asm                          #   Assmebly files folder
 The synthesized netlist is present here:
 +-- verlog                               #   User verilog Directory
-�   +-- gl                               #   Gate Level Netlis
-�       +-- user_project_wrapper.v       #   User Project Wrapper Netlist
-�       +-- user_proj_example.v          #   User Project Example Netlist
+    +-- gl                               #   Gate Level Netlis
+        +-- user_project_wrapper.v       #   User Project Wrapper Netlist
+        +-- user_proj_example.v          #   User Project Example Netlist
 The hardened macros are placed here:
 +-- def                                 #    def Directory
-�   +-- user_project_wrapper.def        #    User Project Wrapper def file
+    +-- user_project_wrapper.def        #    User Project Wrapper def file
 
 +-- lef                                 #    lef Directory
-�   +-- user_project_wrapper.lef        #    User Project Wrapper lef file
-�   +-- user_proj_example.lef           #    User Project Example lef file
+    +-- user_project_wrapper.lef        #    User Project Wrapper lef file
+    +-- user_proj_example.lef           #    User Project Example lef file
 
 +-- gds                                 #    gds Directory
-�   +-- user_project_wrapper.gdz.gz     #    User Project Wrapper gds
-�   +-- user_proj_example.gdz.gz        #    User Project Example gds
+    +-- user_project_wrapper.gdz.gz     #    User Project Wrapper gds
+    +-- user_proj_example.gdz.gz        #    User Project Example gds
 Testing of Design
 Go to verilog/dv/FPU/ directory
 
