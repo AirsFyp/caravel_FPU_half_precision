@@ -15,7 +15,7 @@
 
 `default_nettype wire
 
-`timescale 1 ns / 1 ps
+//`timescale 1 ns / 1 ps
 
 //`include "uprj_netlists.v"
 //`include "caravel_netlists.v"
@@ -63,17 +63,19 @@ module FPU_Half_tb();
 	initial begin
 	    wait(mprj_ready == 1'b1)
             // Observe Output pins [23:8] for multliplication_table
-            wait(mprj_io_0 == 16'd5);
-            wait(mprj_io_0 == 16'd10);
-            wait(mprj_io_0 == 16'd15);
-            wait(mprj_io_0 == 16'd20);
-            wait(mprj_io_0 == 16'd25);
-            wait(mprj_io_0 == 16'd30);
+            wait(mprj_io_0 == 16'h4000);
+            wait(mprj_io_0 == 16'h4020);
+            wait(mprj_io_0 == 16'h4060);
+            wait(mprj_io_0 == 16'h4090);
+            wait(mprj_io_0 == 16'h40b0);
+            wait(mprj_io_0 == 16'h40d0);
+            wait(mprj_io_0 == 16'hC158);
+            wait(mprj_io_0 == 16'hC178);
            
-            $display("MPRJ-IO state = %d", mprj_io[23:8]);  
+            $display("MPRJ-IO state = %h", mprj_io[23:8]);  
 		
 		`ifdef GL
-	    	$display("Monitor: Test 1 Mega-Project IO (GL) Passed");
+	    	    $display("Monitor: Test 1 Mega-Project IO (GL) Passed");
 		`else
 		    $display("Monitor: Test 1 Mega-Project IO (RTL) Passed");
 		`endif
@@ -105,9 +107,9 @@ module FPU_Half_tb();
 		power4 <= 1'b1;
 	end
 	
-	//always @(mprj_io) begin
-	//	#1 $display("MPRJ-IO state = %d, at time = %0t  ", mprj_io[23:8], $time);
-	//end
+	always @(mprj_io_0) begin
+		#1 $display("MPRJ-IO state = %h, at time = %0t  ", mprj_io[23:8], $time);
+	end
 	
 	wire flash_csb;
 	wire flash_clk;

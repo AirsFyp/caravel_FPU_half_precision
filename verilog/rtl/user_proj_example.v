@@ -89,13 +89,16 @@ module user_proj_example #(
     // IRQ
     assign irq = 3'b000;	// Unused
 
-    // LA
-    assign la_data_out = {{127{1'b0}}};
+    // Ouptut at LA bits [31:16]
+    assign la_data_out[15:0] = 16'h0000;
+    assign la_data_out[31:16] = (&la_oenb[31:16]) ? FPU_hp_result : 16'h0000;
+    assign la_data_out[127:32] = {(127-BITS){1'b0}};
     
     // Assuming LA probes [65:64] are for controlling the count clk & reset  
     assign clk = (~la_oenb[64]) ? la_data_in[64] : wb_clk_i;
     assign rst = (~la_oenb[65]) ? la_data_in[65] : ~wb_rst_i;
 
+   
     // Initiation of TOP Module
     FPU_FSM_TOP FPU_Half_Precision_Top (
     					`ifdef USE_POWER_PINS

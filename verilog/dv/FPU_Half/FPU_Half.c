@@ -65,7 +65,7 @@ void main()
 
   // Configure LA probes as inputs to the cpu put zero 
   // Configure LA probes as outputs from the cpu put one
-  
+  reg_la0_oenb = reg_la0_iena =  0x00000000; // configuring as output 
   reg_la2_oenb = reg_la2_iena =  0x00000002; // 65 bit as input to user proj and output from cpu for reset
   reg_la2_data = 0x00000000; // reset
   reg_la2_data = 0x00000002; 
