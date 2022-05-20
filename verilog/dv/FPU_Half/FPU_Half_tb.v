@@ -62,26 +62,6 @@ module FPU_Half_tb();
 
 	initial begin
 	    wait(mprj_ready == 1'b1)
-	    // Observe Output pins [35:8] for factorial
-	    /*wait(mprj_io_0 == 28'h0000001);
-	    wait(mprj_io_0 == 28'h0000002);
-	    wait(mprj_io_0 == 28'h0000006);
-    	    wait(mprj_io_0 == 28'h0000018);
-	    wait(mprj_io_0 == 28'h0000078);
-            wait(mprj_io_0 == 28'h00002D0);
-	    wait(mprj_io_0 == 28'h00013B0);
-            wait(mprj_io_0 == 28'h0009D80);
-	    wait(mprj_io_0 == 28'h0058980);
-            wait(mprj_io_0 == 28'h0375F00);
-            */
-            // Observe Output pins [35:8] for prime_num
-	    /*wait(mprj_io_0 == 28'd1);
-	    wait(mprj_io_0 == 28'd3);
-	    wait(mprj_io_0 == 28'd5);
-    	    wait(mprj_io_0 == 28'd7);
-	    wait(mprj_io_0 == 28'd11);
-            wait(mprj_io_0 == 28'd13);
-            */
             // Observe Output pins [23:8] for multliplication_table
             wait(mprj_io_0 == 16'd5);
             wait(mprj_io_0 == 16'd10);
@@ -89,42 +69,7 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'd20);
             wait(mprj_io_0 == 16'd25);
             wait(mprj_io_0 == 16'd30);
-            
-            // Observe Output pins [35:8] for mean & Determinant
-           // wait(mprj_io_0 == 28'd5);
-            
-            // Observe Output pins [35:8] for power
-            //wait(mprj_io_0 == 28'd64);
-            
-            // Observe Output pins [35:8] for flip number
-            //wait(mprj_io_0 == 28'd4889874);
-            
-            // Observe Output pins [35:8] for Queue 
-            //wait(mprj_io_0 == 28'd5);
-            //wait(mprj_io_0 == 28'd6);
-            //wait(mprj_io_0 == 28'd7);
-            
-            // Observe Output pins [35:8] for perfect square
-            //wait(mprj_io_0 == 28'd5);
-            
-            // Observe Output pins [35:8] for counter / ascending / reverse
-            /*wait(mprj_io_0 == 28'd0);
-            wait(mprj_io_0 == 28'd1);
-            wait(mprj_io_0 == 28'd2);
-            wait(mprj_io_0 == 28'd3);
-            wait(mprj_io_0 == 28'd4);
-            wait(mprj_io_0 == 28'd5);
-            wait(mprj_io_0 == 28'd6);
-            wait(mprj_io_0 == 28'd7);
-            wait(mprj_io_0 == 28'd8);
-            wait(mprj_io_0 == 28'd9);
-            wait(mprj_io_0 == 28'd10);
-            wait(mprj_io_0 == 28'd11);
-            */
-            //wait(mprj_io_0 == 28'd3);
-            //wait(mprj_io_0 == 28'd2);
-            //wait(mprj_io_0 == 28'd1);
-            //wait(mprj_io_0 == 28'd0);
+           
             $display("MPRJ-IO state = %d", mprj_io[23:8]);  
 		
 		`ifdef GL
@@ -160,9 +105,9 @@ module FPU_Half_tb();
 		power4 <= 1'b1;
 	end
 	
-	always @(mprj_io) begin
-		#1 $display("MPRJ-IO state = %d, at time = %0t  ", mprj_io[23:8], $time);
-	end
+	//always @(mprj_io) begin
+	//	#1 $display("MPRJ-IO state = %d, at time = %0t  ", mprj_io[23:8], $time);
+	//end
 	
 	wire flash_csb;
 	wire flash_clk;

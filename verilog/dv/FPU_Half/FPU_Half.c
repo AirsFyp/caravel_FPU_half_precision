@@ -69,7 +69,7 @@ void main()
   reg_la2_oenb = reg_la2_iena =  0x00000002; // 65 bit as input to user proj and output from cpu for reset
   reg_la2_data = 0x00000000; // reset
   reg_la2_data = 0x00000002; 
-  reg_la2_oenb = reg_la2_iena =  0x00000003; // 64 anf 65 bit as input to user proj and output from cpu
+  reg_la2_oenb = reg_la2_iena =  0x00000000; // 64 anf 65 bit as input to user proj and output from cpu
   	
   //reg_la1_oenb = reg_la1_iena =  0x00000000;
   //reg_la1_data = 0x00000015C; // Clk_per_bit

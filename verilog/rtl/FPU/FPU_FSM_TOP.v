@@ -101,7 +101,7 @@ module FPU_FSM_TOP(vccd1,vssd1,r_Rx_Serial,clk,rst_l,FPU_hp_result);
 
 
 
-    assign FPU_hp_result = (rst_l == 1'b0) ? 16'h0000 : (fpu_result_rd_w & Active_Process) ? fpu_complete_rd[15:0] : (fpu_complete & ~fpu_result_rd_w & Active_Process) ? fpu_result_1 : 16'h0000;
+    assign FPU_hp_result = (rst_l == 1'b0) ? 16'h0000 : (fpu_complete_rd & Active_Process) ? fpu_result_rd_w[15:0] : (fpu_complete & ~fpu_complete_rd & Active_Process) ? fpu_result_1 : 16'h0000;
     
     FPU_FSM FSM(
                 .clk(clk),
