@@ -13,8 +13,8 @@
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "verilog/dv/caravel/defs.h"
-#include "verilog/dv/caravel/stub.c"
+#include <defs.h>
+#include <stub.c>
 
 void main()
 {
@@ -44,18 +44,18 @@ void main()
   reg_mprj_io_21 = GPIO_MODE_USER_STD_OUTPUT;
   reg_mprj_io_22 = GPIO_MODE_USER_STD_OUTPUT;
   reg_mprj_io_23 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_24 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_25 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_26 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_27 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_28 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_29 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_30 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_31 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_32 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_33 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_34 = GPIO_MODE_USER_STD_OUTPUT;
-  reg_mprj_io_35 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_24 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_25 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_26 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_27 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_28 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_29 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_30 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_31 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_32 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_33 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_34 = GPIO_MODE_USER_STD_OUTPUT;
+  //reg_mprj_io_35 = GPIO_MODE_USER_STD_OUTPUT;
   //reg_mprj_io_36 = GPIO_MODE_USER_STD_OUTPUT;
   
   reg_mprj_io_37 = GPIO_MODE_MGMT_STD_OUTPUT;
@@ -63,16 +63,21 @@ void main()
   reg_mprj_xfer = 1;
   while(reg_mprj_xfer == 1);
 
-  reg_la2_oenb = reg_la2_iena =  0x00000002;
-  reg_la2_data = 0x00000000; // reset
-  reg_la2_data = 0x00000001;
-  reg_la2_oenb = reg_la2_iena =  0x00000003;
-  	
-  reg_la1_oenb = reg_la1_iena =  0x00000000;
-  reg_la1_data = 0x00000015C; // Clk_per_bit
+  // Configure LA probes as inputs to the cpu put zero 
+  // Configure LA probes as outputs from the cpu put one
   
-  reg_la0_oenb = reg_la0_iena = 0x00000002;
-  reg_la0_data = 0x00000000;
+  reg_la2_oenb = reg_la2_iena =  0x00000002; // 64 bit as input to user proj and output from cpu
+  reg_la2_data = 0x00000000; // reset
+  reg_la2_data = 0x00000001; 
+  reg_la2_oenb = reg_la2_iena =  0x00000003; // 64 anf 65 bit as input to user proj and output from cpu
+  	
+  //reg_la1_oenb = reg_la1_iena =  0x00000000;
+  //reg_la1_data = 0x00000015C; // Clk_per_bit
+  
+  //reg_la0_oenb = reg_la0_iena = 0x00000002;
+  //reg_la0_data = 0x00000000;
+  
+  // sending mprj ready signal
   reg_mprj_datah = 0x20;
 
 }

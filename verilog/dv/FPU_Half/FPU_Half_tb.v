@@ -32,10 +32,10 @@ module FPU_Half_tb();
     wire gpio;
     wire [37:0] mprj_io;
 
-    wire [27:0] mprj_io_0;
+    wire [15:0] mprj_io_0;
     wire mprj_ready;
     
-    assign mprj_io_0 = mprj_io[35:8];
+    assign mprj_io_0 = mprj_io[23:8];
     assign mprj_ready = mprj_io[37];
     
     assign mprj_io[3] = (CSB == 1'b1) ? 1'b1 : 1'bz;
@@ -82,13 +82,13 @@ module FPU_Half_tb();
 	    wait(mprj_io_0 == 28'd11);
             wait(mprj_io_0 == 28'd13);
             */
-            // Observe Output pins [35:8] for multliplication_table
-            wait(mprj_io_0 == 28'd5);
-            wait(mprj_io_0 == 28'd10);
-            wait(mprj_io_0 == 28'd15);
-            wait(mprj_io_0 == 28'd20);
-            wait(mprj_io_0 == 28'd25);
-            wait(mprj_io_0 == 28'd30);
+            // Observe Output pins [23:8] for multliplication_table
+            wait(mprj_io_0 == 16'd5);
+            wait(mprj_io_0 == 16'd10);
+            wait(mprj_io_0 == 16'd15);
+            wait(mprj_io_0 == 16'd20);
+            wait(mprj_io_0 == 16'd25);
+            wait(mprj_io_0 == 16'd30);
             
             // Observe Output pins [35:8] for mean & Determinant
            // wait(mprj_io_0 == 28'd5);
@@ -125,7 +125,7 @@ module FPU_Half_tb();
             //wait(mprj_io_0 == 28'd2);
             //wait(mprj_io_0 == 28'd1);
             //wait(mprj_io_0 == 28'd0);
-            $display("MPRJ-IO state = %d", mprj_io[35:8]);  
+            $display("MPRJ-IO state = %d", mprj_io[23:8]);  
 		
 		`ifdef GL
 	    	$display("Monitor: Test 1 Mega-Project IO (GL) Passed");
@@ -161,7 +161,7 @@ module FPU_Half_tb();
 	end
 	
 	always @(mprj_io) begin
-		#1 $display("MPRJ-IO state = %d, at time = %0t  ", mprj_io[35:8], $time);
+		#1 $display("MPRJ-IO state = %d, at time = %0t  ", mprj_io[23:8], $time);
 	end
 	
 	wire flash_csb;
@@ -170,32 +170,33 @@ module FPU_Half_tb();
 	wire flash_io1;
 	wire r_Rx_Serial;
 	assign mprj_io[5] = r_Rx_Serial;
-	assign mprj_io[3:0] = 4'h0;
+        
+        assign VDD3V3 = power1;
+	assign VDD1V8 = power2;
+	assign VSS = 1'b0;
 
-	wire VDD3V3 = power1;
-	wire VDD1V8 = power2;
-	wire USER_VDD3V3 = power3;
-	wire USER_VDD1V8 = power4;
-	wire VSS = 1'b0;
-
-       	caravel uut (
+	caravel uut (
 		.vddio	  (VDD3V3),
+		.vddio_2  (VDD3V3),
 		.vssio	  (VSS),
+		.vssio_2  (VSS),
 		.vdda	  (VDD3V3),
 		.vssa	  (VSS),
 		.vccd	  (VDD1V8),
 		.vssd	  (VSS),
-		.vdda1    (USER_VDD3V3),
-		.vdda2    (USER_VDD3V3),
+		.vdda1    (VDD3V3),
+		.vdda1_2  (VDD3V3),
+		.vdda2    (VDD3V3),
 		.vssa1	  (VSS),
+		.vssa1_2  (VSS),
 		.vssa2	  (VSS),
-		.vccd1	  (USER_VDD1V8),
-		.vccd2	  (USER_VDD1V8),
+		.vccd1	  (VDD1V8),
+		.vccd2	  (VDD1V8),
 		.vssd1	  (VSS),
 		.vssd2	  (VSS),
-		.clock	  (clock),
+		.clock    (clock),
 		.gpio     (gpio),
-        	.mprj_io  (mprj_io),
+		.mprj_io  (mprj_io),
 		.flash_csb(flash_csb),
 		.flash_clk(flash_clk),
 		.flash_io0(flash_io0),
