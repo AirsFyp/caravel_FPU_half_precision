@@ -5,6 +5,48 @@
 `include "Main_Decode.v"
 `include "Execution.v"
 `include "inst_checker.v"
+`include "FPU_exu.v"
+`include "FPU_fpr_ctl.v"
+`include "FPU_dec_ctl.v"
+`include "Dec_gpr_ctl.v"
+`include "FPU_CSR.v"
+`include "FPU_decode.v"
+`include "beh_lib.v"
+`include "tb_prog.v"
+
+`include "FPU_comparison.v"
+`include "FPU_F2I.v"
+`include "FPU_Fclass.v"
+`include "FPU_Input_Validation.v"
+`include "FPU_move.v"
+`include "FPU_sign_injection.v"
+`include "FPU_Top_Single_Cycle.v"
+`include "FMADD_Add_Post_Normalization.v"
+`include "FMADD_exponent_addition.v"
+`include "FMADD_Exponent_Matching.v"
+`include "FMADD_extender.v"
+`include "FMADD_LZD_L0.v"
+`include "FMADD_LZD_L1.v"
+`include "FMADD_LZD_L2.v"
+`include "FMADD_LZD_L3.v"
+`include "FMADD_LZD_L4.v"
+`include "FMADD_LZD_main.v"
+`include "FMADD_mantissa_addition.v"
+`include "FMADD_mantissa_generator.v"
+`include "FMADD_mantissa_multiplication.v"
+`include "FMADD_Mul_Post_Normalization.v"
+`include "FMADD_rounding_block_Addition.v"
+`include "FMADD_rounding_block_Multiplication.v"
+`include "FMADD_Top_Single_Cycle.v"
+`include "I2F_main.v"
+`include "LZD_layer0.v"
+`include "LZD_layer1.v"
+`include "LZD_layer2.v"
+`include "LZD_layer3.v"
+`include "LZD_layer4.v"
+`include "LZD_main.v"
+`include "LZD_mux.v"
+`include "LZD_comb.v"
 
 
 module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
@@ -43,12 +85,14 @@ module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
     wire [15:0] fs1_data,fs2_data,fs3_data;
     wire [2:0] fpu_pre,fpu_rounding;
     wire [23:0] sfpu_op;
-    wire fpu_active,fpu_complete;
+    wire fpu_active,fpu_complete,fpu_complete_rd;
     wire [15:0]fpu_result_1;
     wire dec_i0_rs1_en_d,dec_i0_rs2_en_d;
     wire [4:0]S_flag;
     wire IV_exception;
     wire[2:0]fpu_sel;
+    wire [31:0]fpu_result_rd_w;
+
     FPU_FSM FSM(
                 .clk(clk),
                 .rst_l(rst_l),
@@ -123,7 +167,9 @@ module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
                     .fpu_rounding(fpu_rounding),
                     .dec_i0_rs1_en_d(dec_i0_rs1_en_d),
                     .dec_i0_rs2_en_d(dec_i0_rs2_en_d),
-                    .fpu_sel(fpu_sel)
+                    .fpu_sel(fpu_sel),
+                    .fpu_result_rd_w(fpu_result_rd_w),
+                    .fpu_complete_rd(fpu_complete_rd)
                 );
 
     Execution Excecution_Unit(
@@ -152,7 +198,9 @@ module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
                             .dec_i0_rs2_en_d(dec_i0_rs2_en_d),
                             .IV_exception(IV_exception),
                             .fpu_complete(fpu_complete),
-                            .fpu_sel(fpu_sel)
+                            .fpu_sel(fpu_sel),
+                            .fpu_result_rd_w(fpu_result_rd_w),
+                            .fpu_complete_rd(fpu_complete_rd)
                             );
 
     Inst_check Inst_Checker(

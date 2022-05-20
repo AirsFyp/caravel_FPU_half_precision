@@ -1,6 +1,3 @@
-`include "FPU_fpr_ctl.v"
-`include "FPU_dec_ctl.v"
-
 module FPU_decode #(parameter FPLEN = 16)
    (
    input 		clk,

@@ -1,16 +1,25 @@
 
 // Designed by : ALi Raza Zaidi
 //mains modue of FMADD 
-/*
-//including coommon blocks
+
+
+//mains modue of FMADD 
+
+/*//including coommon blocks
+
 `include "FMADD_M_G.v"
 `include "FMADD_Ext.v"
 `include "F_LZD_Main.v"
+`include "fma_LZD_L0.v"
+`include "fma_LZD_L1.v"
+`include "fma_LZD_L2.v"
+`include "fma_LZD_L3.v"
+`include "fma_LZD_L4.v"
 
 //including Multiplication LANE
 `include "FMADD_E_A.v"
 `include "FMADD_mult.v"
-`include "FMADD_PN_MUL.v"
+`include "FMADD_PN_Mul.v"
 `include "FMADD_RB_MUL.v"
 
 //Includign Addition/Subtraction LANE
@@ -20,13 +29,38 @@
 `include "FMADD_RB_Ad.v"*/
 
 
+
+//including coommon blocks
+/*
+`include "FMADD_mantissa_generator.v"
+`include "FMADD_extender.v"
+`include "fma_LZD.v"
+`include "fma_LZD_L0.v"
+`include "fma_LZD_L1.v"
+`include "fma_LZD_L2.v"
+`include "fma_LZD_L3.v"
+`include "fma_LZD_L4.v"
+
+//including Multiplication LANE
+`include "FMADD_exponent_addition.v"
+`include "FMADD_mantissa_multiplication.v"
+`include "FMADD_mul_post_normalization.v"
+`include "FMADD_mul_rounding_block.v"
+
+//Includign Addition/Subtraction LANE
+`include "FMADD_exponent_matching.v"
+`include "FMADD_mantissa_addition.v"
+`include "FMADD_add_post_normalization.v"
+`include "FMADD_add_rounding_Block.v"
+*/
+
 module FPU_FMADD_SUBB_Top (FMADD_SUBB_input_IEEE_A, FMADD_SUBB_input_IEEE_B, FMADD_SUBB_input_IEEE_C, FMADD_SUBB_input_opcode,rst_l,FMADD_SUBB_input_Frm,FMADD_SUBB_output_IEEE_FMADD, FMADD_SUBB_output_S_Flags_FMADD, FMADD_SUBB_output_IEEE_FMUL, FMADD_SUBB_output_S_Flags_FMUL );
 
 parameter std =31;
 parameter man =22;
 parameter exp = 7;
-parameter bias = 8'b01111111;
-parameter lzd = 3;
+parameter bias = 127;
+parameter lzd = 4;
 
 //declaration of inputs
 input  [std:0] FMADD_SUBB_input_IEEE_A, FMADD_SUBB_input_IEEE_B,FMADD_SUBB_input_IEEE_C;
@@ -138,7 +172,7 @@ defparam Mantissa_Multiplication.exp = exp;
 
 //instantiation of LZD module
 wire [23:0] input_LZD;
-wire [4:0] output_interim_LZD;
+wire [lzd : 0] output_interim_LZD, output_interim_1_LZD;
 
 assign input_LZD = (output_interim_A_sub_norm) ? output_interim_M_G_A[man+1:0] : output_interim_M_G_B[man+1:0] ;
 
@@ -146,7 +180,11 @@ assign input_LZD = (output_interim_A_sub_norm) ? output_interim_M_G_A[man+1:0] :
 FMADD_PN_LZD Leading_Zero_detection (
                   .FMADD_PN_LZD_input_man_48(input_LZD), 
                   .FMADD_PN_LZD_output_pos(output_interim_LZD)
-                  );
+);
+
+//5'b1100 == 2;s compliment of 8, 8 is subtracted from the final result since the LZD is of 32 bit and actual data is of 24 bit.                  
+//assign to_add_in_lzd_mul = (output_interim_LZD + 5'b11000);
+assign output_interim_1_LZD = output_interim_LZD ;
 
 
 //post normalaization Module
@@ -157,7 +195,7 @@ FMADD_PN_MUL Post_Normalization_Mul (
                   . FMADD_PN_MUL_input_sign (output_interim_exponent_addition_sign),  
                   . FMADD_PN_MUL_input_multiplied_man (output_interim_mantissa_multiplication),
                   . FMADD_PN_MUL_input_exp_DB (output_interim_exponent_addition),
-                  . FMADD_PN_MUL_input_lzd (output_interim_LZD),
+                  . FMADD_PN_MUL_input_lzd (output_interim_1_LZD),
                   . FMADD_PN_MUL_input_A_sub  (output_interim_A_sub_norm),
                   . FMADD_PN_MUL_input_B_sub  (output_interim_B_sub_norm),
                   . FMADD_PN_MUL_input_A_pos  (output_interim_A_pos_exp),
@@ -305,7 +343,7 @@ defparam Rounding_Block_Add.exp = exp;
 defparam Rounding_Block_Add.man = man;
 
 //Multiplication lane output ports
-assign  FMADD_SUBB_output_IEEE_FMUL = ( (~FMADD_SUBB_input_opcode[2]) | underflow_FMUL | (~rst_l) ) ?  { std+1 {1'b0} } : output_rounding_Block ;
+assign  FMADD_SUBB_output_IEEE_FMUL = ( (~FMADD_SUBB_input_opcode[2]) | (~rst_l) ) ?  { std+1 {1'b0} } : output_rounding_Block ;
 assign  FMADD_SUBB_output_S_Flags_FMUL = (  ( FMADD_SUBB_input_opcode[2] ) & (rst_l)  ) ? output_interim_rounding_Block_S_Flag : 3'b000;
 
 //addition Lane output POrts

@@ -1,15 +1,9 @@
-`include "Dec_gpr_ctl.v"
-`include "FPU_CSR.v"
-`include "FPU_decode.v"
+module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Activation_Signal,result,Flag_Reset,Flag_CSR,Flag_CSR_r,fpu_active,fpu_complete,sfpu_op,fpu_pre,fs1_data,fs2_data,fs3_data,valid_execution,illegal_config,float_control,halt_req,fpu_result_1,fpu_rounding,dec_i0_rs1_en_d,dec_i0_rs2_en_d,fpu_sel,fpu_result_rd_w,fpu_complete_rd);
 
 
-
-module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Activation_Signal,result,Flag_Reset,Flag_CSR,Flag_CSR_r,fpu_active,fpu_complete,sfpu_op,fpu_pre,fs1_data,fs2_data,fs3_data,valid_execution,illegal_config,float_control,halt_req,fpu_result_1,fpu_rounding,dec_i0_rs1_en_d,dec_i0_rs2_en_d,fpu_sel);
-
-
-    input clk,rst_l,Activation_Signal,fpu_active,fpu_complete;
+    input clk,rst_l,Activation_Signal,fpu_active,fpu_complete,fpu_complete_rd;
     input [4:0]S_flag;
-    input [31:0]Instruction,result;
+    input [31:0]Instruction,result,fpu_result_rd_w;
     input [15:0]fpu_result_1;
     output Flag_ADDI,Flag_LI,Flag_Reset,Flag_CSR,CSR_Write,valid_execution,illegal_config,halt_req,dec_i0_rs1_en_d,dec_i0_rs2_en_d;
     output [31:0]RS1_d,RS2_d;
@@ -36,6 +30,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     wire [2:0]scalar_control;
     wire write_en;
     wire illegal_instr;
+    wire [23:0]sfpu_op_w;
 
     always @(posedge clk)
     begin
@@ -76,7 +71,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
                             .raddr1(rs2),
                             .wen0(write_en),
                             .waddr0(rd),
-                            .wd0((CSR_Read_r) ? CSR_Read_Data_r : result),
+                            .wd0((CSR_Read_r) ? CSR_Read_Data_r : (fpu_complete_rd & (~Activation_Signal) & (~CSR_Read_r)) ? fpu_result_rd_w : result),
                             .rd0(gpr_rs1),
                             .rd1(gpr_rs2),
                             .scan_mode(1'b0)
@@ -110,7 +105,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
                           .rs2_address(rs2_address),
                           .rd_address(rd_address),
                           .illegal_instr(illegal_instr),
-                          .sfpu_op(sfpu_op),
+                          .sfpu_op(sfpu_op_w),
                           .fpu_rnd(fpu_rnd),
                           .fpu_pre(fpu_pre),
                           .fs1_data(fs1_data),
@@ -133,13 +128,13 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
 
 
     // INTEGER REGISTER  FILE ASSIGNEMENTS
-    assign rs1_en = (~rst_l) ? 1'b0 : (Instruction[11:7] != 5'b00000) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[0] : 1'b0;
+    assign rs1_en = (~rst_l) ? 1'b0 : ((Instruction[11:7] != 5'b00000) & (~fpu_active)) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[0] : 1'b0;
     assign rs2_en = (~rst_l) ? 1'b0 : (Instruction[11:7] != 5'b00000) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[1] : 1'b0;
     assign rs1 = (~rst_l) ? 5'b00000 : (Flag_ADDI) ? Instruction[19:15] : ((Function_CSR == 3'b001) & Flag_CSR) ? Instruction[19:15] : (fpu_active & ~illegal_instr) ? rs1_address : 5'b00000;
     assign rs2 = (~rst_l) ? 5'b00000 : (fpu_active & ~illegal_instr) ? rs2_address : 5'b00000;
     assign RS2_d = (~rst_l) ? 32'h00000000 : Flag_LI ? IMM_LI : (Flag_ADDI) ? {{20{IMM_ADDI[11]}},IMM_ADDI} : gpr_rs2;
     assign RS1_d = (~rst_l) ? 32'h00000000 : /*(Flag_LI) ? 32'h00000000 :*/ gpr_rs1;
-    assign write_en = (~rst_l) ? 1'b0 : (Activation_Signal | CSR_Read_r)  ? 1'b1 :  1'b0;
+    assign write_en = (~rst_l) ? 1'b0 : (Activation_Signal | CSR_Read_r)  ? 1'b1 : (fpu_complete_rd & (~Activation_Signal)) ? 1'b1 : 1'b0;
 
     // CSRRW & CSRRWI instructions ASSIGNEMENTS
     assign Flag_CSR = (~rst_l) ? 1'b0 : (Instruction[6:0] == 7'b1110011) ? 1'b1 : 1'b0;
@@ -151,5 +146,6 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     assign fpu_rounding = (~rst_l) ? 3'b000 : (fpu_active & (~illegal_instr) & (fpu_rnd==3'b111)) ? Fpu_Frm : (fpu_active & (~illegal_instr) & (fpu_rnd!=3'b111)) ? fpu_rnd : 3'b000;
     assign dec_i0_rs1_en_d = (~rst_l) ? 1'b0 : rs1_en;
     assign dec_i0_rs2_en_d = (~rst_l) ? 1'b0 : rs2_en;
+    assign sfpu_op = (~rst_l) ? 24'b000000 : sfpu_op_w;
 
 endmodule

@@ -141,6 +141,7 @@ FPU_sign Floating_sign_injection (
               .IEEE_B(Operand_B),
               .IEEE_out(output_interim_FPU_sign)
 );
+
 defparam Floating_sign_injection.Std=std;
 defparam Floating_sign_injection.Man=man;
 defparam Floating_sign_injection.Exp=exp;
@@ -205,8 +206,8 @@ defparam Floating_Comparison.Std=std;
 defparam Floating_Comparison.Man=man;
 defparam Floating_Comparison.Exp=exp;
 
-/*//module instantiation for FCLASS instruction
-wire [std:0] output_interim_Fclass;
+//module instantiation for FCLASS instruction
+wire [31:0] output_interim_Fclass;
 
 FPU_Fclass Floating_Classify (
                             .rst_l (rst_l),
@@ -214,10 +215,12 @@ FPU_Fclass Floating_Classify (
                             .Classification_Input (Operand_A),
                             .opcode (sfpu_op[21] | vfpu_op[25])
 );
+
 defparam Floating_Classify.Std=std;
-defparam Floating_Classify.man=man;
-defparam Floating_Classify.exp=exp;
-*/
+defparam Floating_Classify.Man=man;
+
+
+
 // module instantiation for Fmadd/fmsub/fnmadd/fnmsub/fadd/fsub/fmul instruction
 wire [std:0] output_interim_FMADD,output_interim_Fmul;
 wire [2:0] output_interim_S_Flags_Fmul, output_interim_S_Flags_Fmadd;
@@ -322,12 +325,12 @@ begin
     S_Flags_reg <= 5'b00000; 
     end            
 
-  /*else if (sfpu_op[21] | vfpu_op[25])               //output slection for Fclass instructions
+  else if (sfpu_op[21] | vfpu_op[25])               //output slection for Fclass instructions
     begin
      FPU_resultant_reg <= 32'h00000000;
      FPU_Result_rd_reg <= output_interim_Fclass;
      S_Flags_reg <= 5'b00000; 
-    end*/
+    end
   else    
     begin
      FPU_resultant_reg <= 32'h00000000;

@@ -1,12 +1,7 @@
-`include "fma_LZD.v"
 
 module FMADD_PN_MUL( FMADD_PN_MUL_input_sign, FMADD_PN_MUL_input_exp_DB, FMADD_PN_MUL_input_multiplied_man, FMADD_PN_MUL_input_lzd, FMADD_PN_MUL_input_rm, FMADD_PN_MUL_input_A_neg, FMADD_PN_MUL_input_A_pos, FMADD_PN_MUL_input_A_sub, FMADD_PN_MUL_input_B_neg, FMADD_PN_MUL_input_B_pos, FMADD_PN_MUL_input_B_sub, FMADD_PN_MUL_output_no, FMADD_PN_MUL_output_overflow, FMADD_PN_MUL_output_sticky_PN);
 
-initial
-begin
-	$dumpfile("dump.vcd");
-	$dumpvars(0);
-end
+
 
 //Defining Parameters
 parameter std = 31;//Standard - 1
@@ -77,14 +72,13 @@ assign FMADD_PN_MUL_wire_127_sub_expDB_extra_bit = bias[exp+1:0] - FMADD_PN_MUL_
 assign FMADD_PN_MUL_wire_expDB_sub_127_extra_bit = FMADD_PN_MUL_input_exp_DB - bias[exp+1:0];
 
 
-
+//condition1 == FMADD_PN_MUL_wire_op_3
 assign FMADD_PN_MUL_wire_exp_shifts_interim = FMADD_PN_MUL_wire_op_3 ? (FMADD_PN_MUL_wire_expDB_sub_127_extra_bit[exp : 0]) : (FMADD_PN_MUL_wire_127_sub_expDB_extra_bit[exp : 0]);
 
 //man+man+4 is first stored here since man is a parameter and parameters are 32 bit wide so using parameter directly will raise a mismatch error.
 assign FMADD_PN_MUL_wire_useless = man+man+4;
-assign FMADD_PN_MUL_wire_shifts_overflow = (FMADD_PN_MUL_wire_exp_shifts_interim > man+man+4) | (FMADD_PN_MUL_input_A_sub & FMADD_PN_MUL_input_B_sub);
 //If shifts are greater than 48 then set then to 48.
-assign FMADD_PN_MUL_wire_exp_shifts = (FMADD_PN_MUL_wire_shifts_overflow) ? (FMADD_PN_MUL_wire_useless[(lzd+1) : 0]) : (FMADD_PN_MUL_wire_exp_shifts_interim[(lzd+1) : 0]) ; 
+assign FMADD_PN_MUL_wire_exp_shifts = (FMADD_PN_MUL_wire_exp_shifts_interim > (man+man+4)) ? (FMADD_PN_MUL_wire_useless[(lzd+1) : 0]) : (FMADD_PN_MUL_wire_exp_shifts_interim[(lzd+1) : 0]) ; 
 
 assign FMADD_PN_MUL_wire_condition_2 = FMADD_PN_MUL_wire_op_3 & (!(FMADD_PN_MUL_input_lzd_shifts > FMADD_PN_MUL_wire_expDB_sub_127_extra_bit));
 assign FMADD_PN_MUL_wire_shifts_lzd_msb = FMADD_PN_MUL_wire_condition_2 ? ({1'b0,FMADD_PN_MUL_input_lzd_shifts}) : { ({(lzd+1){1'b0}}) , (!FMADD_PN_MUL_input_multiplied_man[man+man+3])} ;
@@ -123,9 +117,9 @@ assign FMADD_PN_MUL_wire_man_interim =  FMADD_PN_LZD_wire_direction_shifts ? FMA
 assign FMADD_PN_MUL_wire_man_final = (FMADD_PN_MUL_wire_man_interim[man+man+4]) ? FMADD_PN_MUL_wire_man_interim[man+man+4 : 1] : FMADD_PN_MUL_wire_man_interim[man+man+3 : 0];
 
 //Exponent Logic
-
-
-assign FMADD_PN_MUL_wire_condition_5 = FMADD_PN_MUL_wire_op_4 | (FMADD_PN_MUL_wire_op_5 & PM_MUL_wire_sub_or_norm_op5) | (FMADD_PN_MUL_wire_op_3 & (FMADD_PN_MUL_input_lzd_shifts > FMADD_PN_MUL_wire_expDB_sub_127_extra_bit)) | (FMADD_PN_MUL_input_A_sub & FMADD_PN_MUL_input_B_sub) ;
+wire FMADD_PN_MUL_wire_pos_into_sub_subnormal;
+assign FMADD_PN_MUL_wire_pos_into_sub_subnormal = (FMADD_PN_MUL_wire_op_3 & (FMADD_PN_MUL_input_lzd_shifts > FMADD_PN_MUL_wire_expDB_sub_127_extra_bit)) | (FMADD_PN_MUL_input_A_sub & FMADD_PN_MUL_input_B_sub);
+assign FMADD_PN_MUL_wire_condition_5 = FMADD_PN_MUL_wire_op_4 | (FMADD_PN_MUL_wire_op_5 & PM_MUL_wire_sub_or_norm_op5) | FMADD_PN_MUL_wire_pos_into_sub_subnormal ;
 
 // Zero is first stored here since exponent size of different standards is different and using one specific size for FMADD_PN_MUL_wire_exp_interim_1 will raise a mismatch error.
 assign FMADD_PN_MUL_wire_zero_useless = 0;
@@ -142,18 +136,28 @@ assign FMADD_PN_MUL_wire_exp_interim_4 = FMADD_PN_MUL_wire_exp_interim_3 - FMADD
 
 assign FMADD_PN_MUL_wire_exp_interim_5 = FMADD_PN_MUL_wire_condition_7 ? FMADD_PN_MUL_wire_exp_interim_4 : FMADD_PN_MUL_wire_exp_interim_3 ;
 
+wire [exp+1 : 0] FMADD_PN_MUL_wire_exp_interim_6 ;
+wire FMADD_PN_MUL_wire_condition_8 ;
+
+assign FMADD_PN_MUL_wire_condition_8 = ((FMADD_PN_MUL_wire_man_final[man+man+3]) & FMADD_PN_MUL_wire_pos_into_sub_subnormal & (&(!FMADD_PN_MUL_wire_exp_interim_5)));
+assign FMADD_PN_MUL_wire_exp_interim_6 = (FMADD_PN_MUL_wire_condition_8) ? (FMADD_PN_MUL_wire_exp_interim_5 + 1'b1) : (FMADD_PN_MUL_wire_exp_interim_5) ;
+
 //Selection of what exception to output in case of overflow, max normal number or infinity
 
 assign FMADD_PN_MUL_wire_exception_cond1 = (FMADD_PN_MUL_input_rm == 3'b000 | FMADD_PN_MUL_input_rm == 3'b100) | ((!FMADD_PN_MUL_input_sign) & (FMADD_PN_MUL_input_rm == 3'b011)) | ((FMADD_PN_MUL_input_sign) & (FMADD_PN_MUL_input_rm == 3'b010));
 assign FMADD_PN_MUL_wire_output_interim_1 = (FMADD_PN_MUL_wire_exception_cond1) ? ({ FMADD_PN_MUL_input_sign, ({exp+1{1'b1}}), ({man+man+4{1'b0}}) }) : ({ FMADD_PN_MUL_input_sign, ({{exp{1'b1}}, 1'b0}), ({man+man+4{1'b1}}) });
 //condition to select output, either exception or result from main, in case 9th bit (singke precision) of exp is high or bits from 8:0 are high then it is overflow
-assign FMADD_PN_MUL_wire_exception_cond2 = FMADD_PN_MUL_wire_exp_interim_5[exp+1] | (&FMADD_PN_MUL_wire_exp_interim_5[exp : 0]);
+assign FMADD_PN_MUL_wire_exception_cond2 = FMADD_PN_MUL_wire_exp_interim_6[exp+1] | (&FMADD_PN_MUL_wire_exp_interim_6[exp : 0]);
 //Selecting what to output exception or result coming form main
-assign FMADD_PN_MUL_output_no = (FMADD_PN_MUL_wire_exception_cond2) ? (FMADD_PN_MUL_wire_output_interim_1) : ({FMADD_PN_MUL_input_sign, (FMADD_PN_MUL_wire_exp_interim_5[exp : 0]), FMADD_PN_MUL_wire_man_final}) ;
+assign FMADD_PN_MUL_output_no = (FMADD_PN_MUL_wire_exception_cond2) ? (FMADD_PN_MUL_wire_output_interim_1) : ({FMADD_PN_MUL_input_sign, (FMADD_PN_MUL_wire_exp_interim_6[exp : 0]), FMADD_PN_MUL_wire_man_final}) ;
 //In case cond2 is high overflow flag is set to one
 assign FMADD_PN_MUL_output_overflow = FMADD_PN_MUL_wire_exception_cond2;
 
 //in case shifts are greater than M+N or subnormal numbers are getting multiplied with each other then sticky_PN will get high.
 assign FMADD_PN_MUL_output_sticky_PN = FMADD_PN_MUL_wire_shifts_overflow;
+
+//If mantissa after all the processing is zero than it means it has became zero due to shifting and sticky is one.
+assign FMADD_PN_MUL_wire_shifts_overflow = (!(|FMADD_PN_MUL_wire_man_final)) | (FMADD_PN_MUL_input_A_sub & FMADD_PN_MUL_input_B_sub);
+
 
 endmodule

@@ -68,7 +68,7 @@ assign Exponent_Matching_output_Exp = Exponent_Matching_Exp_Sub_input_1;
 //decision fo rrounding bits
 assign Exponent_Matching_output_Guard = Exponent_Matching_Shifter_output[man+man+3] ;
 assign Exponent_Matching_output_Round = Exponent_Matching_Shifter_output[man+man+2] ;
-assign Exponent_Matching_output_Sticky = (|Exponent_Matching_Shifter_output [man+man:0]) ;
+assign Exponent_Matching_output_Sticky = (Exponent_Matching_Shif_Amount >= 96) ? 1'b1: (|Exponent_Matching_Shifter_output [man+man+1:0]) ;
 
 
 endmodule

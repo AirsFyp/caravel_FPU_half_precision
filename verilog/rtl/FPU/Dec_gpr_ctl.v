@@ -1,5 +1,3 @@
-`include "beh_lib.v"
-
 module dec_gpr_ctl
 #(
   parameter XLEN = 32

@@ -1,6 +1,4 @@
-`include "FPU_exu.v"
-
-module Execution(clk,rst_l,RS1_d,RS2_d,result,Flag_ADDI,Flag_LI,Activation_Signal,Flag_Reset,fpu_active,illegal_config,valid_execution,fs1_data,fs2_data,fs3_data,sfpu_op,fpu_pre,fpu_rounding,float_control,fpu_result_1,S_flag,dec_i0_rs1_en_d,dec_i0_rs2_en_d,IV_exception,fpu_complete,fpu_sel);
+module Execution(clk,rst_l,RS1_d,RS2_d,result,Flag_ADDI,Flag_LI,Activation_Signal,Flag_Reset,fpu_active,illegal_config,valid_execution,fs1_data,fs2_data,fs3_data,sfpu_op,fpu_pre,fpu_rounding,float_control,fpu_result_1,S_flag,dec_i0_rs1_en_d,dec_i0_rs2_en_d,IV_exception,fpu_complete,fpu_sel,fpu_result_rd_w,fpu_complete_rd);
     input clk,rst_l,Flag_ADDI,Flag_LI,Flag_Reset,fpu_active,illegal_config,valid_execution,dec_i0_rs1_en_d,dec_i0_rs2_en_d;
     input [31:0]RS1_d,RS2_d;
     input [15:0]fs1_data,fs2_data,fs3_data;
@@ -14,10 +12,11 @@ module Execution(clk,rst_l,RS1_d,RS2_d,result,Flag_ADDI,Flag_LI,Activation_Signa
     output [4:0]S_flag;
     output IV_exception;
     output fpu_complete;
+    output [31:0]fpu_result_rd_w;
+    output fpu_complete_rd;
 
     wire [31:0]result_w;
     wire complete; 
-    wire [31:0]fpu_result_rd_w;
 
     FPU_exu FPU_Execution(
                          .clk(clk),
@@ -40,7 +39,8 @@ module Execution(clk,rst_l,RS1_d,RS2_d,result,Flag_ADDI,Flag_LI,Activation_Signa
                          .fpu_result_rd(fpu_result_rd_w),                          // integer result
                          .fpu_complete(fpu_complete),
                          .sflags(S_flag),
-                         .IV_exception(IV_exception)
+                         .IV_exception(IV_exception),
+                         .fpu_complete_rd(fpu_complete_rd)
                          );
 
     assign result_w = (~rst_l) ? 32'h00000000 : (Flag_ADDI | Flag_LI) ? (RS1_d + RS2_d) : 32'h00000000;
@@ -57,7 +57,7 @@ module Execution(clk,rst_l,RS1_d,RS2_d,result,Flag_ADDI,Flag_LI,Activation_Signa
         else
         begin
             result = result_w;
-            Activation_Signal = complete;
+            Activation_Signal =  complete;
         end
     end
 

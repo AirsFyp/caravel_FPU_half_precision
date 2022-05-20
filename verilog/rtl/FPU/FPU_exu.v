@@ -1,38 +1,3 @@
-`include "FPU_comparison.v"
-`include "FPU_F2I.v"
-`include "FPU_Fclass.v"
-`include "FPU_Input_Validation.v"
-`include "FPU_move.v"
-`include "FPU_sign_injection.v"
-`include "FPU_Top_Single_Cycle.v"
-`include "FMADD_Add_Post_Normalization.v"
-`include "FMADD_exponent_addition.v"
-`include "FMADD_Exponent_Matching.v"
-`include "FMADD_extender.v"
-`include "FMADD_LZD_L0.v"
-`include "FMADD_LZD_L1.v"
-`include "FMADD_LZD_L2.v"
-`include "FMADD_LZD_L3.v"
-`include "FMADD_LZD_L4.v"
-`include "FMADD_LZD_main.v"
-`include "FMADD_mantissa_addition.v"
-`include "FMADD_mantissa_generator.v"
-`include "FMADD_mantissa_multiplication.v"
-`include "FMADD_Mul_Post_Normalization.v"
-`include "FMADD_rounding_block_Addition.v"
-`include "FMADD_rounding_block_Multiplication.v"
-`include "FMADD_Top_Single_Cycle.v"
-`include "I2F_main.v"
-`include "LZD_layer0.v"
-`include "LZD_layer1.v"
-`include "LZD_layer2.v"
-`include "LZD_layer3.v"
-`include "LZD_layer4.v"
-`include "LZD_main.v"
-`include "LZD_mux.v"
-`include "LZD_comb.v"
-
-
 module FPU_exu #(parameter FPLEN = 16) (
 input clk,
 input rst_l,
@@ -55,7 +20,9 @@ output [FPLEN-1:0]  fpu_result_1,                           // single cycle resu
 output [31:0]       fpu_result_rd,                          // integer result
 output fpu_complete,
 output [4:0] sflags,
-output IV_exception
+output IV_exception,
+output fpu_complete_rd
+
 );
 
 reg [23:0] sfpu_op_r;
@@ -68,6 +35,7 @@ wire [FPLEN-1:0]           fpu_result_top;
 wire [FPLEN-1:0]           fpu_result_rx;
 wire [4:0] fpu_flags;
 wire [31:0]FPU_Result_rd,Operand_Int;
+
 // sfpu_op [0]  = fadd
 // sfpu_op [1]  = fsub
 // sfpu_op [2]  = fmul
@@ -145,5 +113,5 @@ wire [31:0]FPU_Result_rd,Operand_Int;
 	// FPU GPR result
 	assign fpu_result_rd = (rst_l == 1'b0) ? {32{1'b0}} : (fpu_complete & ((|sfpu_op_r[11:9]) | sfpu_op_r[14] | sfpu_op_r[8] | sfpu_op_r[21])) ? FPU_Result_rd : 
 								   {32{1'b0}};
-	
+	assign fpu_complete_rd = (~rst_l) ? 1'b0 : (fpu_complete & ((|sfpu_op_r[11:8]) | sfpu_op_r[14] | sfpu_op_r[21])) ? 1'b1 : 1'b0;
 endmodule

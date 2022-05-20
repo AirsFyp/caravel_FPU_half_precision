@@ -58,7 +58,7 @@
     `include "FPU/FPU_Input_Validation.v"
     `include "FPU/FPU_move.v"
     `include "FPU/FPU_sign_injection.v"
-    `include "FPU/FPU_Too_Single_Cycle.v"
+    `include "FPU/FPU_Top_Single_Cycle.v"
     `include "FPU/I2F_main.v"
     `include "FPU/iccm_controller.v"
     `include "FPU/inst_checker.v"
@@ -71,7 +71,7 @@
     `include "FPU/LZD_main.v"
     `include "FPU/LZD_mux.v"
     `include "FPU/Main_Decode.v"
-    `include "FPU/uart_rx_prob.v"
+    `include "FPU/uart_rx_prog.v"
     `include "FPU/Sky130_SRAM_1kbyte_Memory.v"
      
 `endif
