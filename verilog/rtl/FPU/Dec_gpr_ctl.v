@@ -31,8 +31,9 @@ module dec_gpr_ctl
    // GPR Write Enables
    assign gpr_wr_en[31:1] = (rst_l == 1'b0) ? {31{1'b1}} : (w0v[31:1]);
    
+genvar j;   
 generate   
-   for (genvar j=1; j<32; j=j+1)
+   for (j=1; j<32; j=j+1)
       rvdffe #(32) gprff (.*, .en(gpr_wr_en[j]), .din(gpr_in[j][XLEN-1:0]), .dout(gpr_out[j][XLEN-1:0]));
 endgenerate
 
@@ -42,18 +43,18 @@ endgenerate
       assign rd1 = (rst_l  == 1'b0) ? {XLEN{1'b0}} : ((rden1 == 1'b1) & (raddr1 != 5'b00000)) ? gpr_out[raddr1][XLEN-1:0] : {XLEN{1'b0}};
    
       // GPR write logic   
-integer j;
+integer p;
    always @(*) begin
        if(rst_l == 1'b0) begin
           w0v = 32'h00000000;
-          for(j=1; j<32; j=j+1) begin
-             gpr_in[j] = {XLEN{1'b0}};
+          for(p=1; p<32; p=p+1) begin
+             gpr_in[p] = {XLEN{1'b0}};
           end
        end
       else begin 
-          for (int j=1; j<32; j=j+1)  begin
-             w0v[j]     = wen0  & (waddr0[4:0] == j );
-             gpr_in[j]  =    ({XLEN{w0v[j]}} & wd0[XLEN-1:0]);
+          for (p=1; p<32; p=p+1)  begin
+             w0v[p]     = wen0  & (waddr0[4:0] == p );
+             gpr_in[p]  =    ({XLEN{w0v[p]}} & wd0[XLEN-1:0]);
     	  end
       end
    end 

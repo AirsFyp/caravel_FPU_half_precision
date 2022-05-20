@@ -17,9 +17,9 @@
 
 `timescale 1 ns / 1 ps
 
-`include "uprj_netlists.v"
-`include "caravel_netlists.v"
-`include "spiflash.v"
+//`include "uprj_netlists.v"
+//`include "caravel_netlists.v"
+//`include "spiflash.v"
 `include "tb_prog.v"
 
 module FPU_Half_tb();
@@ -48,7 +48,7 @@ module FPU_Half_tb();
  
     initial begin
         $dumpfile("FPU_Half.vcd");
-        $dumpvars(0, FPU_Half);
+        $dumpvars(0, FPU_Half_tb);
 
         // Repeat cycles of 1000 clock edges as needed to complete testbench
         //repeat (300) begin

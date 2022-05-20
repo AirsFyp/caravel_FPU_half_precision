@@ -25,7 +25,7 @@ output fpu_complete_rd
 
 );
 
-reg [23:0] sfpu_op_r;
+wire [23:0] sfpu_op_r;
 reg sfpu_alu_valid_r;
 wire [FPLEN-1:0]           fs1_d; 
 wire [FPLEN-1:0]           fs2_d;

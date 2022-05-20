@@ -17,7 +17,8 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     wire [2:0] fpu_rnd,Fpu_Frm;
     wire [11:0]IMM_ADDI,CSR_Addr;
     wire [31:0]IMM_LI;
-    reg [4:0]rd,rd_address;
+    reg [4:0]rd;
+    wire [4:0] rd_address;
     wire [4:0]rs1,rs2,rs1_address,rs2_address;
     //reg [31:0]Instruction_reg;
     wire [31:0]gpr_rs1,gpr_rs2;

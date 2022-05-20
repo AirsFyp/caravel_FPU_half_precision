@@ -47,11 +47,11 @@ module FPU_fpr_ctl
 
    // FPR Write Enables
    assign fpr_wr_en[31:0] = (rst_l == 1'b0) ? {32{1'b1}} : (w0v[31:0]);
-   
+
+genvar j;   
 generate   
-   for (genvar j=0; j<32; j++)  begin : fpr
+   for (j=0; j<32; j=j+1)
       rvdffe #(16) fprff (.*, .en(fpr_wr_en[j]), .din(fpr_in[j][FPLEN-1:0]), .dout(fpr_out[j][FPLEN-1:0]));
-   end : fpr
 endgenerate
 
 
@@ -61,18 +61,18 @@ endgenerate
       assign rd2 = (rst_l  == 1'b0) ? {FPLEN{1'b0}} : ((rden2 == 1'b1)) ? fpr_out[raddr2][FPLEN-1:0] : {FPLEN{1'b0}};  
    
       // FPR write logic   
-integer j;
+integer q;
    always @(*) begin
        if(rst_l == 1'b0) begin
           w0v = 32'h00000000;
-          for(j=0; j<32; j=j+1) begin
-             fpr_in[j] = {FPLEN{1'b0}};
+          for(q=0; q<32; q=q+1) begin
+             fpr_in[q] = {FPLEN{1'b0}};
           end
        end
       else begin 
-          for (int j=0; j<32; j++ )  begin
-             w0v[j]     = wen0  & (waddr0[4:0] == j );
-             fpr_in[j]  =    ({FPLEN{w0v[j]}} & wd0[FPLEN-1:0]);
+          for (q=0; q<32; q=q+1)  begin
+             w0v[q]     = wen0  & (waddr0[4:0] == q );
+             fpr_in[q]  =    ({FPLEN{w0v[q]}} & wd0[FPLEN-1:0]);
     	  end
       end
    end 

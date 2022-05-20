@@ -1,4 +1,4 @@
-`include "FPU_FSM_Control_Decode.v"
+/*`include "FPU_FSM_Control_Decode.v"
 `include "Sky130_SRAM_1kbyte_Memory.v"
 `include "uart_rx_prog.v"
 `include "iccm_controller.v"
@@ -47,7 +47,7 @@
 `include "LZD_main.v"
 `include "LZD_mux.v"
 `include "LZD_comb.v"
-
+*/
 
 module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
 
