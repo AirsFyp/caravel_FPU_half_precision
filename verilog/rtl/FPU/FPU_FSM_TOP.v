@@ -49,14 +49,20 @@
 `include "LZD_comb.v"
 */
 
-module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
+module FPU_FSM_TOP(vccd1,vssd1,r_Rx_Serial,clk,rst_l,FPU_hp_result);
 
+`ifdef USE_POWER_PINS
+    inout vccd1;	// User area 1 1.8V supply
+    inout vssd1;	// User area 1 digital ground
+`endif
     // FPU UART
     input r_Rx_Serial;
     // FPU UART
 
     // FPU FSM 
     input clk,rst_l;
+    
+    output [15:0] FPU_hp_result;
     // FPU FSM 
 
     wire o_Rx_DV;
@@ -93,6 +99,10 @@ module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
     wire[2:0]fpu_sel;
     wire [31:0]fpu_result_rd_w;
 
+
+
+    assign FPU_hp_result = (rst_l == 1'b0) ? 16'h0000 : (fpu_result_rd_w & Active_Process) ? fpu_complete_rd[15:0] : (fpu_complete & ~fpu_result_rd_w & Active_Process) ? fpu_result_1 : 16'h0000;
+    
     FPU_FSM FSM(
                 .clk(clk),
                 .rst_l(rst_l),
@@ -106,6 +116,10 @@ module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
                 );
 
     sky130_sram_1kbyte_1rw1r_32x256_8 SKY130(
+    					`ifdef USE_POWER_PINS
+    					  .vccd1(vccd1),	// User area 1 1.8V supply
+    					  .vssd1(vssd1),	// User area 1 digital ground
+					`endif
                                         .clk0(clk),
                                         .csb0(~we_o),
                                         .web0(~we_o),
@@ -213,10 +227,6 @@ module FPU_FSM_TOP(r_Rx_Serial,clk,rst_l);
               .fpu_active(fpu_active)
               );
 
-    initial 
-    begin
-        $dumpfile("FPU_FSM.vcd");
-        $dumpvars(0);
-    end
+   
 
 endmodule
