@@ -32,9 +32,6 @@ The Floating Point Unit Source Code is avaialable here
         
         |       +-- FPU                          #   Floating Point Unit folder
         
-        |       +--                              #   FPU source files
-        
-        |       +--                              #   1KB sram
         
 The Design Verification Testbench is available here
 
@@ -42,7 +39,7 @@ The Design Verification Testbench is available here
     
         +-- dv                               #   Design Verification
         
-        +-- FPU                              #   Design Test Directory
+        +-- FPU_Half                         #   Design Test Directory
         
         +-- hex                              #   Hex files folder
         

@@ -62,7 +62,8 @@ module FPU_Half_tb();
 
 	initial begin
 	    wait(mprj_ready == 1'b1)
-            // Observe Output pins [23:8] for multliplication_table
+            // Observe Output pins [23:8] for Fmove
+            /*
             wait(mprj_io_0 == 16'h4000);
             wait(mprj_io_0 == 16'h4020);
             wait(mprj_io_0 == 16'h4060);
@@ -71,6 +72,23 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'h40d0);
             wait(mprj_io_0 == 16'hC158);
             wait(mprj_io_0 == 16'hC178);
+            */
+            // Observe Output pins [23:8] for Fsign and I2F
+            wait(mprj_io_0 == 16'h449A);
+            wait(mprj_io_0 == 16'h3042);
+            wait(mprj_io_0 == 16'h491E);
+            wait(mprj_io_0 == 16'hDA92);
+            wait(mprj_io_0 == 16'h5CB0);
+            wait(mprj_io_0 == 16'h5CD9);
+            wait(mprj_io_0 == 16'h5F09);
+            wait(mprj_io_0 == 16'hBD78);
+            wait(mprj_io_0 == 16'h449A);
+            wait(mprj_io_0 == 16'h744A);
+            wait(mprj_io_0 == 16'h7AE6);
+            wait(mprj_io_0 == 16'h7582);
+            wait(mprj_io_0 == 16'h7AE4);
+            wait(mprj_io_0 == 16'h7208);
+            wait(mprj_io_0 == 16'h7AE7);
            
             $display("MPRJ-IO state = %h", mprj_io[23:8]);  
 		
