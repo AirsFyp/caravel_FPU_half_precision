@@ -107,7 +107,7 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'h0002);
             */
             // Observe Output pins [23:8] for Comparison and Min/Max
-            
+            /*
             wait(mprj_io_0 == 16'h0001);
             wait(mprj_io_0 == 16'h0001);
             wait(mprj_io_0 == 16'h0001);
@@ -123,7 +123,16 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'hDC87);
             wait(mprj_io_0 == 16'hB03E);
             wait(mprj_io_0 == 16'hBCF0);
-            
+            */
+            // Observe Output pins [23:8] for FMUL
+            wait(mprj_io_0 == 16'h60C2);
+            wait(mprj_io_0 == 16'h30A7);
+            wait(mprj_io_0 == 16'h67FF);
+            wait(mprj_io_0 == 16'h78DF);
+            wait(mprj_io_0 == 16'h7C00);
+            wait(mprj_io_0 == 16'h5124);
+            wait(mprj_io_0 == 16'h6058);
+            wait(mprj_io_0 == 16'h0000);
             
             $display("MPRJ-IO state = %h", mprj_io[23:8]);  
 		
