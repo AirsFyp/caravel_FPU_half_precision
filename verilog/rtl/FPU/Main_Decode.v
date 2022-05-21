@@ -5,7 +5,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     input [4:0]S_flag;
     input [31:0]Instruction,result,fpu_result_rd_w;
     input [15:0]fpu_result_1;
-    output Flag_ADDI,Flag_LI,Flag_Reset,Flag_CSR,CSR_Write,valid_execution,illegal_config,halt_req,dec_i0_rs1_en_d,dec_i0_rs2_en_d;
+    output Flag_ADDI,Flag_LI,Flag_Reset,Flag_CSR,valid_execution,illegal_config,halt_req,dec_i0_rs1_en_d,dec_i0_rs2_en_d;
     output [31:0]RS1_d,RS2_d;
     output [15:0]fs1_data,fs2_data,fs3_data;
     output reg Flag_CSR_r;
@@ -13,7 +13,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     output [2:0]fpu_pre,fpu_rounding,fpu_sel;
     output [3:0]float_control;
     
-    
+    wire CSR_Write;
     wire [2:0] fpu_rnd,Fpu_Frm;
     wire [11:0]IMM_ADDI,CSR_Addr;
     wire [31:0]IMM_LI;
