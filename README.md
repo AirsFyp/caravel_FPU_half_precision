@@ -74,7 +74,7 @@ The hardened macros are placed here:
 
 Testing of Design
 
-Go to verilog/dv/FPU/ directory
+Go to verilog/dv/FPU_Half/ directory
 
 Set the GCC_PATH environment variable.
 
