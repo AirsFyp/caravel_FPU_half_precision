@@ -25,7 +25,6 @@ L4_wire_output_val & L4_wire_output_pos[2],
 L4_wire_output_val & L4_wire_output_pos[1],
 L4_wire_output_val & L4_wire_output_pos[0]};
 
-//5'b1100 == 2;s compliment of 8, 8 is subtracted from the final result since the LZD is of 32 bit and actual data is of 24 bit.
-assign L4_output_pos = L4_wire_output_pos_32 + 5'b11000;
+assign L4_output_pos = L4_wire_output_pos_32 ;
 
 endmodule

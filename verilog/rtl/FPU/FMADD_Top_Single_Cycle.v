@@ -54,11 +54,12 @@
 `include "FMADD_add_rounding_Block.v"
 */
 
+
 module FPU_FMADD_SUBB_Top (FMADD_SUBB_input_IEEE_A, FMADD_SUBB_input_IEEE_B, FMADD_SUBB_input_IEEE_C, FMADD_SUBB_input_opcode,rst_l,FMADD_SUBB_input_Frm,FMADD_SUBB_output_IEEE_FMADD, FMADD_SUBB_output_S_Flags_FMADD, FMADD_SUBB_output_IEEE_FMUL, FMADD_SUBB_output_S_Flags_FMUL );
 
 parameter std =31;
 parameter man =22;
-parameter exp = 7;
+parameter exp =7;
 parameter bias = 127;
 parameter lzd = 4;
 
@@ -172,20 +173,33 @@ defparam Mantissa_Multiplication.exp = exp;
 
 //instantiation of LZD module
 wire [23:0] input_LZD;
-wire [lzd : 0] output_interim_LZD, output_interim_1_LZD;
+//wire [4:0] output_LZD;
+wire [lzd : 0] output_LZD;
 
-assign input_LZD = (output_interim_A_sub_norm) ? output_interim_M_G_A[man+1:0] : output_interim_M_G_B[man+1:0] ;
+
+wire [23 : 0] input_interim_A_LZD,  input_interim_B_LZD ;
+
+assign input_interim_A_LZD = 
+(man == 22) ? (output_interim_M_G_A[man+1:0]) : //-8 for SP
+(man == 9 ) ? ({ ({(24-(man+2)){1'b0}}) ,(output_interim_M_G_A[man+1:0])}) : //-21 for IEEE16, concatinate 24-(man+2) zero to make the mantissa size == 24
+			        ({ ({(24-(man+2)){1'b0}}) ,(output_interim_M_G_A[man+1:0])}) ; //-24 for Bf16, concatinate 24-(man+2) zero to make the mantissa size == 24
+assign input_interim_B_LZD = 
+(man == 22) ? (output_interim_M_G_B[man+1:0]) : //-8 for SP
+(man == 9 ) ? ({ ({(24-(man+2)){1'b0}}) ,(output_interim_M_G_B[man+1:0])}) : //-21 for IEEE16, concatinate 24-(man+2) zero to make the mantissa size == 24
+			        ({ ({(24-(man+2)){1'b0}}) ,(output_interim_M_G_B[man+1:0])}) ; //-24 for Bf16, concatinate 24-(man+2) zero to make the mantissa size == 24
+
+assign input_LZD = (output_interim_A_sub_norm) ? input_interim_A_LZD : input_interim_B_LZD ;
+
+
+//assign input_LZD = (output_interim_A_sub_norm) ? output_interim_M_G_A[man+1:0] : output_interim_M_G_B[man+1:0] ;
 
 
 FMADD_PN_LZD Leading_Zero_detection (
                   .FMADD_PN_LZD_input_man_48(input_LZD), 
-                  .FMADD_PN_LZD_output_pos(output_interim_LZD)
-);
-
-//5'b1100 == 2;s compliment of 8, 8 is subtracted from the final result since the LZD is of 32 bit and actual data is of 24 bit.                  
-//assign to_add_in_lzd_mul = (output_interim_LZD + 5'b11000);
-assign output_interim_1_LZD = output_interim_LZD ;
-
+                  .FMADD_PN_LZD_output_pos(output_LZD)
+                  );
+defparam Leading_Zero_detection.man = man;
+defparam Leading_Zero_detection.lzd = lzd;
 
 //post normalaization Module
 wire [1+exp+2*(man+2):0] output_interim_post_normalization_IEEE;
@@ -195,7 +209,7 @@ FMADD_PN_MUL Post_Normalization_Mul (
                   . FMADD_PN_MUL_input_sign (output_interim_exponent_addition_sign),  
                   . FMADD_PN_MUL_input_multiplied_man (output_interim_mantissa_multiplication),
                   . FMADD_PN_MUL_input_exp_DB (output_interim_exponent_addition),
-                  . FMADD_PN_MUL_input_lzd (output_interim_1_LZD),
+                  . FMADD_PN_MUL_input_lzd (output_LZD),
                   . FMADD_PN_MUL_input_A_sub  (output_interim_A_sub_norm),
                   . FMADD_PN_MUL_input_B_sub  (output_interim_B_sub_norm),
                   . FMADD_PN_MUL_input_A_pos  (output_interim_A_pos_exp),
@@ -251,7 +265,7 @@ wire output_interim_Exponent_Mathcing_Eff_sub;
 wire output_interim_Exponent_Mathcing_Guard;
 wire output_interim_Exponent_Mathcing_Round;
 wire output_interim_Exponent_Mathcing_Sticky;
-
+wire output_interim_Exponent_Mathcing_Exp_Diff_Check;
 
 
 FMADD_Exponent_Matching Exponent_Matching ( 
@@ -270,7 +284,8 @@ FMADD_Exponent_Matching Exponent_Matching (
                             .Exponent_Matching_output_Round( output_interim_Exponent_Mathcing_Round),
                             .Exponent_Matching_output_Sticky( output_interim_Exponent_Mathcing_Sticky),
                             .Exponent_Matching_output_Eff_Sub( output_interim_Exponent_Mathcing_Eff_sub),
-                            .Exponent_Matching_output_Eff_add( output_interim_Exponent_Mathcing_Eff_add)
+                            .Exponent_Matching_output_Eff_add( output_interim_Exponent_Mathcing_Eff_add),
+                            .Exponent_Matching_output_Exp_Diff_Check (output_interim_Exponent_Mathcing_Exp_Diff_Check)
   );
 defparam Exponent_Matching.std = std;
 defparam Exponent_Matching.exp = exp;
@@ -285,7 +300,8 @@ FMADD_Mantissa_Addition Mantissa_Addition (
                              .Mantissa_Addition_input_Mantissa_B( output_interim_Exponent_Mathcing_Mantissa_B),
                              .Mantissa_Addition_input_Eff_Sub( output_interim_Exponent_Mathcing_Eff_sub),
                              .Mantissa_Addition_output_Mantissa(output_interim_Mantissa_Addition_Mantissa ), 
-                             .Mantissa_Addition_output_Carry(output_interim_Mantissa_Addition_Carry)
+                             .Mantissa_Addition_output_Carry(output_interim_Mantissa_Addition_Carry),
+                             .Mantissa_Addition_input_Exp_Diff_Check (output_interim_Exponent_Mathcing_Exp_Diff_Check)
 );
 defparam Mantissa_Addition.std = std;
 defparam Mantissa_Addition.exp = exp; 

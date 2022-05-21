@@ -6,12 +6,15 @@
 
 module FMADD_PN_LZD (FMADD_PN_LZD_input_man_48, FMADD_PN_LZD_output_pos);
 
-
-parameter layer = 1;
+parameter lzd = 4;
+parameter man = 22;
 
 input [23 : 0]FMADD_PN_LZD_input_man_48;
 
-output [4: 0]FMADD_PN_LZD_output_pos;
+output [lzd : 0]FMADD_PN_LZD_output_pos;
+
+wire [4 : 0]FMADD_PN_LZD_output_pos_interim_1;
+wire [5 : 0]FMADD_PN_LZD_output_pos_interim_2;
 
 wire [23 : 0] LZD_wire_output_L0;
 wire [17 : 0] LZD_wire_output_L1;
@@ -31,6 +34,14 @@ FMADD_LZD_layer_2 L2 (.L2_input_pos_val(LZD_wire_output_L1), .L2_output_pos_val(
 FMADD_LZD_layer_3 L3 (.L3_input_pos_val(LZD_wire_output_L2), .L3_output_pos_val(LZD_wire_output_L3));
 
 //Layer 4
-FMADD_LZD_layer_4 L4 (.L4_input_pos_val(LZD_wire_output_L3), .L4_output_pos(FMADD_PN_LZD_output_pos));
+FMADD_LZD_layer_4 L4 (.L4_input_pos_val(LZD_wire_output_L3), .L4_output_pos(FMADD_PN_LZD_output_pos_interim_1));
+
+assign FMADD_PN_LZD_output_pos_interim_2 = 
+(man == 22) ? (({1'b0,FMADD_PN_LZD_output_pos_interim_1}) + 6'b011000) : //-8 for SP
+(man == 9 ) ? (({1'b0,FMADD_PN_LZD_output_pos_interim_1}) + 6'b101011) : //-21 for IEEE16
+			  (({1'b0,FMADD_PN_LZD_output_pos_interim_1}) + 6'b101000) ; //-24 for Bf16
+
+
+assign FMADD_PN_LZD_output_pos = FMADD_PN_LZD_output_pos_interim_2[lzd : 0];
 
 endmodule

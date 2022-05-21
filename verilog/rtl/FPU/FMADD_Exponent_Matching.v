@@ -1,6 +1,6 @@
 //module is responsible for matching the exponents for addition
 
-module FMADD_Exponent_Matching (Exponent_Matching_input_Sign_A,Exponent_Matching_input_Sign_B,Exponent_Matching_input_Exp_A,Exponent_Matching_input_Exp_B,Exponent_Matching_input_Mantissa_A,Exponent_Matching_input_Mantissa_B,Exponent_Matching_input_opcode,Exponent_Matching_output_Mantissa_A,Exponent_Matching_output_Mantissa_B,Exponent_Matching_output_Exp,Exponent_Matching_output_Guard,Exponent_Matching_output_Round,Exponent_Matching_output_Sticky,Exponent_Matching_output_Sign,Exponent_Matching_output_Eff_Sub,Exponent_Matching_output_Eff_add);
+module FMADD_Exponent_Matching (Exponent_Matching_input_Sign_A,Exponent_Matching_input_Sign_B,Exponent_Matching_input_Exp_A,Exponent_Matching_input_Exp_B,Exponent_Matching_input_Mantissa_A,Exponent_Matching_input_Mantissa_B,Exponent_Matching_input_opcode,Exponent_Matching_output_Mantissa_A,Exponent_Matching_output_Mantissa_B,Exponent_Matching_output_Exp,Exponent_Matching_output_Guard,Exponent_Matching_output_Round,Exponent_Matching_output_Sticky,Exponent_Matching_output_Sign,Exponent_Matching_output_Eff_Sub,Exponent_Matching_output_Eff_add,Exponent_Matching_output_Exp_Diff_Check);
 
 //defination of prameters
 parameter std =31;
@@ -17,11 +17,10 @@ input [man+man+3:0] Exponent_Matching_input_Mantissa_A,Exponent_Matching_input_M
 input [1:0] Exponent_Matching_input_opcode;
 
 //declaration of putptu ports
-output Exponent_Matching_output_Sign;
+output Exponent_Matching_output_Sign , Exponent_Matching_output_Exp_Diff_Check;
 output [man+man+3:0] Exponent_Matching_output_Mantissa_A,Exponent_Matching_output_Mantissa_B;
 output [exp:0] Exponent_Matching_output_Exp;
 output Exponent_Matching_output_Guard,Exponent_Matching_output_Round,Exponent_Matching_output_Sticky,Exponent_Matching_output_Eff_Sub,Exponent_Matching_output_Eff_add;
-
 //main funtionality 
 
 //declaration for wires
@@ -65,10 +64,14 @@ assign Exponent_Matching_output_Mantissa_B = (Exponent_Matching_Bit_Exp_A_ge_B) 
 //decision of xponent
 assign Exponent_Matching_output_Exp = Exponent_Matching_Exp_Sub_input_1;
 
+//Decision for the exponent difference on the basis of which this is t be decided that either 1 or 0 will be added in the compliment_B and recompliment of the final answer (Please refer to the documentation fo detailed analyssis)
+assign Exponent_Matching_output_Exp_Diff_Check = Exponent_Matching_Shif_Amount >= 8'b00110000 ;
+
+
 //decision fo rrounding bits
 assign Exponent_Matching_output_Guard = Exponent_Matching_Shifter_output[man+man+3] ;
 assign Exponent_Matching_output_Round = Exponent_Matching_Shifter_output[man+man+2] ;
-assign Exponent_Matching_output_Sticky = (Exponent_Matching_Shif_Amount >= 96) ? 1'b1: (|Exponent_Matching_Shifter_output [man+man+1:0]) ;
+assign Exponent_Matching_output_Sticky = ( &(~Exponent_Matching_Shifter_output) ) ? 1'b1: (|Exponent_Matching_Shifter_output [man+man+1:0]) ;
 
 
 endmodule

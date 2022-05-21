@@ -13,7 +13,7 @@ input FMADD_ROUND_MUL_input_sticky_PN;
 
 output [std : 0] FMADD_ROUND_MUL_output_no;
 output [2 : 0]FMADD_ROUND_MUL_output_S_Flags;
-assign FMADD_ROUND_MUL_output_S_Flags = {FMADD_ROUND_MUL_output_overflow,FMADD_ROUND_MUL_output_underflow,FMADD_ROUND_MUL_output_inexact};
+
 
 
 wire FMADD_ROUND_MUL_output_inexact, FMADD_ROUND_MUL_output_underflow, FMADD_ROUND_MUL_output_overflow;
@@ -24,6 +24,8 @@ wire FMADD_ROUND_MUL_wire_inc;
 wire [man+1 : 0] FMADD_ROUND_MUL_wire_rounded_man;
 wire [exp : 0] FMADD_ROUND_MUL_wire_rounded_exp;
 wire [man : 0] FMADD_ROUND_MUL_wire_final_man;
+
+assign FMADD_ROUND_MUL_output_S_Flags = {FMADD_ROUND_MUL_output_overflow,FMADD_ROUND_MUL_output_underflow,FMADD_ROUND_MUL_output_inexact};
 
 assign FMADD_ROUND_MUL_wire_guard  =  FMADD_ROUND_MUL_input_no[man+1];
 assign FMADD_ROUND_MUL_wire_round  =  FMADD_ROUND_MUL_input_no[man];
