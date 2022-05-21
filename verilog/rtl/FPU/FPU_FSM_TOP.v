@@ -49,22 +49,23 @@
 `include "LZD_comb.v"
 */
 
-module FPU_FSM_TOP(vccd1,vssd1,r_Rx_Serial,clk,rst_l,FPU_hp_result);
+module FPU_FSM_TOP(
 
 `ifdef USE_POWER_PINS
-    inout vccd1;	// User area 1 1.8V supply
-    inout vssd1;	// User area 1 digital ground
+    inout vccd1,	// User area 1 1.8V supply
+    inout vssd1,	// User area 1 digital ground
 `endif
     // FPU UART
-    input r_Rx_Serial;
+    input r_Rx_Serial,
     // FPU UART
 
     // FPU FSM 
-    input clk,rst_l;
+    input clk,
+    input rst_l,
     
-    output [15:0] FPU_hp_result;
+    output [15:0] FPU_hp_result
     // FPU FSM 
-
+);
     wire o_Rx_DV;
     wire [7:0]o_Rx_Byte;
     wire Active_Process;
