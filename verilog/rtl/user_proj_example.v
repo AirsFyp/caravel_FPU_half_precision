@@ -73,6 +73,7 @@ module user_proj_example #(
     wire rst;
     wire rx_i;
     wire [15:0] FPU_hp_result;
+    wire [15:0] CLKS_PER_BIT;
 
     wire [`MPRJ_IO_PADS-1:0] io_in;
     wire [`MPRJ_IO_PADS-1:0] io_out;
@@ -91,14 +92,15 @@ module user_proj_example #(
     assign irq = 3'b000;	// Unused
 
     // Ouptut at LA bits [31:16]
-    assign la_data_out[15:0] = 16'h0000;
-    assign la_data_out[31:16] = (&la_oenb[31:16]) ? FPU_hp_result : 16'h0000;
-    assign la_data_out[127:32] = {(127-BITS){1'b0}};
+    assign la_data_out[31:0] = 32'h00000000;
+    assign la_data_out[47:32] = (&la_oenb[47:32]) ? FPU_hp_result : 16'h0000;
+    assign la_data_out[127:48] = {79{1'b0}};
     
     // Assuming LA probes [65:64] are for controlling the count clk & reset  
     assign clk = (~la_oenb[64]) ? la_data_in[64] : wb_clk_i;
     assign rst = (~la_oenb[65]) ? la_data_in[65] : ~wb_rst_i;
-
+    assign CLKS_PER_BIT = (la_oenb[31:16] == 16'h0000) ? la_data_in[31:16] : 16'd348;
+   
    
     // Initiation of TOP Module
     FPU_FSM_TOP FPU_Half_Precision_Top (
@@ -109,6 +111,7 @@ module user_proj_example #(
     					  .clk(clk),
     					  .rst_l(rst),
     					  .r_Rx_Serial(rx_i),
+    					  .CLKS_PER_BIT(CLKS_PER_BIT),
     					  .FPU_hp_result(FPU_hp_result)
     					  );
 

@@ -62,6 +62,7 @@ module FPU_FSM_TOP(
     // FPU FSM 
     input clk,
     input rst_l,
+    input [15:0] CLKS_PER_BIT,
     
     output [15:0] FPU_hp_result
     // FPU FSM 
@@ -148,7 +149,7 @@ module FPU_FSM_TOP(
                         .i_Clock(clk),
                         .rst_ni(rst_l),
                         .i_Rx_Serial(r_Rx_Serial),
-                        .CLKS_PER_BIT(16'd348),
+                        .CLKS_PER_BIT(CLKS_PER_BIT),
                         .o_Rx_DV(o_Rx_DV),
                         .o_Rx_Byte(o_Rx_Byte)
                     );
