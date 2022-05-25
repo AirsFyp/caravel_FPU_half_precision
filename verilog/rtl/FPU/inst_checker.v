@@ -15,7 +15,7 @@ module Inst_check(
  localparam FPU_X_FNSUB = 7'h4B;
  reg halt;	      
 
-assign stall_scalar = (rst_l == 1'b0) ? 1'b0 : (halt_req | halt) ? stall_scalar : 1'b0;    		    
+assign stall_scalar = (rst_l == 1'b0) ? 1'b0 : (halt_req | halt) ? 1'b1 : 1'b0;    		    
 	      
 assign fpu_active = (rst_l == 1'b0) ? 1'b0 : ((inst_opcode == FPU_X_RANDOM | inst_opcode == FPU_X_FADD | inst_opcode == FPU_X_FSUB | inst_opcode == FPU_X_FNADD | inst_opcode == FPU_X_FNSUB)) ?  1'b1 : (halt) ? fpu_active : 1'b0;  
 
