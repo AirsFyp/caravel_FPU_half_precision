@@ -1,13 +1,9 @@
 
-// Designed by : ALi Raza Zaidi
 //mains modue of FMADD 
 
+//including coommon blocks
 
-//mains modue of FMADD 
-
-/*//including coommon blocks
-
-`include "FMADD_M_G.v"
+/*`include "FMADD_M_G.v"
 `include "FMADD_Ext.v"
 `include "F_LZD_Main.v"
 `include "fma_LZD_L0.v"
@@ -28,31 +24,6 @@
 `include "FMADD_PN_Ad.v"
 `include "FMADD_RB_Ad.v"*/
 
-
-
-//including coommon blocks
-/*
-`include "FMADD_mantissa_generator.v"
-`include "FMADD_extender.v"
-`include "fma_LZD.v"
-`include "fma_LZD_L0.v"
-`include "fma_LZD_L1.v"
-`include "fma_LZD_L2.v"
-`include "fma_LZD_L3.v"
-`include "fma_LZD_L4.v"
-
-//including Multiplication LANE
-`include "FMADD_exponent_addition.v"
-`include "FMADD_mantissa_multiplication.v"
-`include "FMADD_mul_post_normalization.v"
-`include "FMADD_mul_rounding_block.v"
-
-//Includign Addition/Subtraction LANE
-`include "FMADD_exponent_matching.v"
-`include "FMADD_mantissa_addition.v"
-`include "FMADD_add_post_normalization.v"
-`include "FMADD_add_rounding_Block.v"
-*/
 
 
 module FPU_FMADD_SUBB_Top (FMADD_SUBB_input_IEEE_A, FMADD_SUBB_input_IEEE_B, FMADD_SUBB_input_IEEE_C, FMADD_SUBB_input_opcode,rst_l,FMADD_SUBB_input_Frm,FMADD_SUBB_output_IEEE_FMADD, FMADD_SUBB_output_S_Flags_FMADD, FMADD_SUBB_output_IEEE_FMUL, FMADD_SUBB_output_S_Flags_FMUL );
@@ -123,7 +94,7 @@ defparam Mantissa_Generator.exp = exp;
 
 //extend  module : This module is responsible for making the input representable in IEEE exteded format
 wire [std+1 : 0] input_Extender_B;
-wire [1+exp+2*(man+2):0] output_interim_Extender_A,output_interim_Extender_B;
+wire [2+exp+2*(man+2):0] output_interim_Extender_A,output_interim_Extender_B;
 
 //selection of the second operand of the extender : If addition is the inputted instruction B goes to extender otherwise C goes to the Extender
 assign input_Extender_B = (| FMADD_SUBB_input_opcode[1:0]) ? output_interim_M_G_B : output_interim_M_G_C;
@@ -202,8 +173,8 @@ defparam Leading_Zero_detection.man = man;
 defparam Leading_Zero_detection.lzd = lzd;
 
 //post normalaization Module
-wire [1+exp+2*(man+2):0] output_interim_post_normalization_IEEE;
-wire output_interim_post_normalization_mul_overflow_flag, output_interim_post_normalization_mul_sticky;
+wire [2+exp+2*(man+2):0] output_interim_post_normalization_IEEE_A;
+wire  output_interim_post_normalization_mul_sticky;
 
 FMADD_PN_MUL Post_Normalization_Mul ( 
                   . FMADD_PN_MUL_input_sign (output_interim_exponent_addition_sign),  
@@ -216,8 +187,7 @@ FMADD_PN_MUL Post_Normalization_Mul (
                   . FMADD_PN_MUL_input_B_pos  (output_interim_B_pos_exp),
                   . FMADD_PN_MUL_input_A_neg  (output_interim_A_neg_exp),
                   . FMADD_PN_MUL_input_B_neg  (output_interim_B_neg_exp),
-                  . FMADD_PN_MUL_output_no (output_interim_post_normalization_IEEE),
-                  . FMADD_PN_MUL_output_overflow (output_interim_post_normalization_mul_overflow_flag), 
+                  . FMADD_PN_MUL_output_no (output_interim_post_normalization_IEEE_A), 
                   . FMADD_PN_MUL_output_sticky_PN(output_interim_post_normalization_mul_sticky),
                   . FMADD_PN_MUL_input_rm(FMADD_SUBB_input_Frm)
 );
@@ -233,9 +203,8 @@ wire [std:0] output_rounding_Block;
 wire [2:0] output_interim_rounding_Block_S_Flag;
 
 FMADD_ROUND_MUL Rounding_Block_Mul (
-                     .FMADD_ROUND_MUL_input_overflow(output_interim_post_normalization_mul_overflow_flag),
                      .FMADD_ROUND_MUL_input_sticky_PN(output_interim_post_normalization_mul_sticky),
-                     .FMADD_ROUND_MUL_input_no(output_interim_post_normalization_IEEE),
+                     .FMADD_ROUND_MUL_input_no(output_interim_post_normalization_IEEE_A),
                      .FMADD_ROUND_MUL_input_rm(FMADD_SUBB_input_Frm),
                      .FMADD_ROUND_MUL_output_no(output_rounding_Block),
                      .FMADD_ROUND_MUL_output_S_Flags(output_interim_rounding_Block_S_Flag)
@@ -248,8 +217,9 @@ defparam Rounding_Block_Mul.man = man;
 ///=interim wires and register for FMADD Lane
 
 //ppelining registers
-wire [1+exp+2*(man+2):0] input_interim_ADD_LANE_A;
-wire [1+exp+2*(man+2):0] input_interim_ADD_LANE_B;
+wire [2+exp+2*(man+2):0] input_interim_ADD_LANE_A;
+wire [2+exp+2*(man+2):0] input_interim_ADD_LANE_B;
+wire [2+exp+2*(man+2):0] output_interim_post_normalization_IEEE;
 
 //inputs to the FMADD LANE
 assign input_interim_ADD_LANE_A = ( |(FMADD_SUBB_input_opcode[1:0] ) ) ? output_interim_Extender_A : (| FMADD_SUBB_input_opcode[6:3]) ? output_interim_post_normalization_IEEE : 57'h000000000000000 ;
@@ -259,20 +229,23 @@ assign input_interim_ADD_LANE_B =  (|(FMADD_SUBB_input_opcode[1:0] ) ) ? output_
 wire output_interim_Exponent_Mathcing_Sign;
 wire [man+man+3:0] output_interim_Exponent_Mathcing_Mantissa_A;
 wire [man+man+3:0] output_interim_Exponent_Mathcing_Mantissa_B;
-wire [exp:0] output_interim_Exponent_Mathcing_Exponent;
+wire [exp+1:0] output_interim_Exponent_Mathcing_Exponent;
 wire output_interim_Exponent_Mathcing_Eff_add;
 wire output_interim_Exponent_Mathcing_Eff_sub;
 wire output_interim_Exponent_Mathcing_Guard;
 wire output_interim_Exponent_Mathcing_Round;
 wire output_interim_Exponent_Mathcing_Sticky;
 wire output_interim_Exponent_Mathcing_Exp_Diff_Check;
+wire output_interim_Exponent_Mathcing_A_gt_B;
 
+
+assign output_interim_post_normalization_IEEE = ( (&(~output_interim_post_normalization_IEEE_A[1+exp+2*(man+2):man+man+4])) & (~underflow_FMUL) ) ? {output_interim_post_normalization_IEEE_A[2+exp+2*(man+2)],{exp+1{1'b0}},1'b1,output_interim_post_normalization_IEEE_A[man+man+3:0]  } : output_interim_post_normalization_IEEE_A ;
 
 FMADD_Exponent_Matching Exponent_Matching ( 
-                            .Exponent_Matching_input_Sign_A ( input_interim_ADD_LANE_A[1+exp+2*(man+2)] ),
-                            .Exponent_Matching_input_Sign_B(  input_interim_ADD_LANE_B[1+exp+2*(man+2)]  ),
-                            .Exponent_Matching_input_Exp_A(  input_interim_ADD_LANE_A[exp+2*(man+2): man+man+4] ),
-                            .Exponent_Matching_input_Exp_B( input_interim_ADD_LANE_B[exp+2*(man+2): man+man+4]  ),
+                            .Exponent_Matching_input_Sign_A ( input_interim_ADD_LANE_A[2+exp+2*(man+2)] ),
+                            .Exponent_Matching_input_Sign_B(  input_interim_ADD_LANE_B[2+exp+2*(man+2)]  ),
+                            .Exponent_Matching_input_Exp_A(  input_interim_ADD_LANE_A[1+exp+2*(man+2): man+man+4] ),
+                            .Exponent_Matching_input_Exp_B( input_interim_ADD_LANE_B[1+exp+2*(man+2): man+man+4]  ),
                             .Exponent_Matching_input_Mantissa_A( input_interim_ADD_LANE_A[man+man+3 : 0] ),
                             .Exponent_Matching_input_Mantissa_B( input_interim_ADD_LANE_B[man+man+3 : 0] ),
                             .Exponent_Matching_input_opcode( {  FMADD_SUBB_input_opcode[1] | FMADD_SUBB_input_opcode[4] | FMADD_SUBB_input_opcode[6] , FMADD_SUBB_input_opcode[0] | FMADD_SUBB_input_opcode[5] | FMADD_SUBB_input_opcode[3]}  ),
@@ -285,7 +258,8 @@ FMADD_Exponent_Matching Exponent_Matching (
                             .Exponent_Matching_output_Sticky( output_interim_Exponent_Mathcing_Sticky),
                             .Exponent_Matching_output_Eff_Sub( output_interim_Exponent_Mathcing_Eff_sub),
                             .Exponent_Matching_output_Eff_add( output_interim_Exponent_Mathcing_Eff_add),
-                            .Exponent_Matching_output_Exp_Diff_Check (output_interim_Exponent_Mathcing_Exp_Diff_Check)
+                            .Exponent_Matching_output_Exp_Diff_Check (output_interim_Exponent_Mathcing_Exp_Diff_Check),
+                            .Exponent_Matching_output_A_gt_B (output_interim_Exponent_Mathcing_A_gt_B)
   );
 defparam Exponent_Matching.std = std;
 defparam Exponent_Matching.exp = exp;
@@ -301,7 +275,8 @@ FMADD_Mantissa_Addition Mantissa_Addition (
                              .Mantissa_Addition_input_Eff_Sub( output_interim_Exponent_Mathcing_Eff_sub),
                              .Mantissa_Addition_output_Mantissa(output_interim_Mantissa_Addition_Mantissa ), 
                              .Mantissa_Addition_output_Carry(output_interim_Mantissa_Addition_Carry),
-                             .Mantissa_Addition_input_Exp_Diff_Check (output_interim_Exponent_Mathcing_Exp_Diff_Check)
+                             .Mantissa_Addition_input_Exp_Diff_Check (output_interim_Exponent_Mathcing_Exp_Diff_Check),
+                             .Mantissa_Addition_input_A_gt_B(output_interim_Exponent_Mathcing_A_gt_B)
 );
 defparam Mantissa_Addition.std = std;
 defparam Mantissa_Addition.exp = exp; 
@@ -336,7 +311,7 @@ defparam Post_Normalization_Add.man = man;
 wire [exp:0] output_interim_Rounding_Block_Exp;
 wire [man:0] output_interim_Rounding_Block_Mantissa;
 wire  output_interim_Rounding_Block_Sign;
-wire [1:0] output_interim_Rounding_Block_S_flags;
+wire [2:0] output_interim_Rounding_Block_S_flags;
 wire [2:0] input_rounding_block_Add_frm;
 
 assign input_rounding_block_Add_frm =   (|FMADD_SUBB_input_opcode[6:3] | (|FMADD_SUBB_input_opcode[1:0]) ) ? FMADD_SUBB_input_Frm : 3'b000;
@@ -364,7 +339,8 @@ assign  FMADD_SUBB_output_S_Flags_FMUL = (  ( FMADD_SUBB_input_opcode[2] ) & (rs
 
 //addition Lane output POrts
 assign FMADD_SUBB_output_IEEE_FMADD = (  ((|FMADD_SUBB_input_opcode[1:0]) | (|FMADD_SUBB_input_opcode[6:3]) ) & (rst_l) ) ? { output_interim_Rounding_Block_Sign, output_interim_Rounding_Block_Exp ,output_interim_Rounding_Block_Mantissa } :{ std+1 {1'b0} } ;
-assign FMADD_SUBB_output_S_Flags_FMADD = ( ( (|FMADD_SUBB_input_opcode[1:0]) | (|FMADD_SUBB_input_opcode[6:3]) ) & (rst_l)  ) ? {output_interim_Rounding_Block_S_flags[1],1'b0,output_interim_Rounding_Block_S_flags[0]} : 3'b00;
+assign FMADD_SUBB_output_S_Flags_FMADD = ( ( (|FMADD_SUBB_input_opcode[1:0]) | (|FMADD_SUBB_input_opcode[6:3]) ) & (rst_l)  ) ? {output_interim_Rounding_Block_S_flags[1],output_interim_Rounding_Block_S_flags[2],output_interim_Rounding_Block_S_flags[0]} : 3'b00;
 
 
 endmodule
+

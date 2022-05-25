@@ -1,5 +1,4 @@
-
-module FMADD_PN_MUL( FMADD_PN_MUL_input_sign, FMADD_PN_MUL_input_exp_DB, FMADD_PN_MUL_input_multiplied_man, FMADD_PN_MUL_input_lzd, FMADD_PN_MUL_input_rm, FMADD_PN_MUL_input_A_neg, FMADD_PN_MUL_input_A_pos, FMADD_PN_MUL_input_A_sub, FMADD_PN_MUL_input_B_neg, FMADD_PN_MUL_input_B_pos, FMADD_PN_MUL_input_B_sub, FMADD_PN_MUL_output_no, FMADD_PN_MUL_output_overflow, FMADD_PN_MUL_output_sticky_PN);
+module FMADD_PN_MUL( FMADD_PN_MUL_input_sign, FMADD_PN_MUL_input_exp_DB, FMADD_PN_MUL_input_multiplied_man, FMADD_PN_MUL_input_lzd, FMADD_PN_MUL_input_rm, FMADD_PN_MUL_input_A_neg, FMADD_PN_MUL_input_A_pos, FMADD_PN_MUL_input_A_sub, FMADD_PN_MUL_input_B_neg, FMADD_PN_MUL_input_B_pos, FMADD_PN_MUL_input_B_sub, FMADD_PN_MUL_output_no, FMADD_PN_MUL_output_sticky_PN);
 
 
 
@@ -18,8 +17,7 @@ input [lzd : 0]FMADD_PN_MUL_input_lzd;
 input [2 : 0]FMADD_PN_MUL_input_rm;
 
 
-output [man+man+exp+5 : 0]FMADD_PN_MUL_output_no;//57 bit output having sign, 8bit exp and 48bit mantissa
-output FMADD_PN_MUL_output_overflow;
+output [man+man+exp+6 : 0]FMADD_PN_MUL_output_no;//58 bit output having sign, 9bit exp and 48bit mantissa
 output FMADD_PN_MUL_output_sticky_PN;
 
 wire [lzd : 0]FMADD_PN_MUL_input_lzd_shifts = FMADD_PN_MUL_input_lzd + 1'b1; 
@@ -55,11 +53,14 @@ wire [4 : 0]FMADD_PN_MUL_wire_lzd_true;
 wire [4 : 0]FMADD_PN_MUL_wire_lzd_true_sub_49;
 wire [exp+1 : 0]FMADD_PN_MUL_wire_exp_interim_4;
 wire [exp+1 : 0]FMADD_PN_MUL_wire_exp_interim_5;
+wire FMADD_PN_MUL_wire_condition_8 ;
+wire [exp+1 : 0] FMADD_PN_MUL_wire_exp_interim_6 ;
 
+/*
 wire FMADD_PN_MUL_wire_exception_cond1;
 wire [man+man+exp+5 : 0]FMADD_PN_MUL_wire_output_interim_1;
 wire FMADD_PN_MUL_wire_exception_cond2;
-
+*/
 
 assign FMADD_PN_MUL_wire_op_1 = (FMADD_PN_MUL_input_A_pos) & (FMADD_PN_MUL_input_B_pos) ;
 assign FMADD_PN_MUL_wire_op_2 = (FMADD_PN_MUL_input_A_neg) & (FMADD_PN_MUL_input_B_pos) | (FMADD_PN_MUL_input_A_pos) & (FMADD_PN_MUL_input_B_neg) ;
@@ -136,28 +137,17 @@ assign FMADD_PN_MUL_wire_exp_interim_4 = FMADD_PN_MUL_wire_exp_interim_3 - FMADD
 
 assign FMADD_PN_MUL_wire_exp_interim_5 = FMADD_PN_MUL_wire_condition_7 ? FMADD_PN_MUL_wire_exp_interim_4 : FMADD_PN_MUL_wire_exp_interim_3 ;
 
-wire [exp+1 : 0] FMADD_PN_MUL_wire_exp_interim_6 ;
-wire FMADD_PN_MUL_wire_condition_8 ;
-
+// In case hidden bit of the mantissa is 1 and exponent is all 0 then add 1 in the exponent
 assign FMADD_PN_MUL_wire_condition_8 = ((FMADD_PN_MUL_wire_man_final[man+man+3]) & FMADD_PN_MUL_wire_pos_into_sub_subnormal & (&(!FMADD_PN_MUL_wire_exp_interim_5)));
 assign FMADD_PN_MUL_wire_exp_interim_6 = (FMADD_PN_MUL_wire_condition_8) ? (FMADD_PN_MUL_wire_exp_interim_5 + 1'b1) : (FMADD_PN_MUL_wire_exp_interim_5) ;
 
-//Selection of what exception to output in case of overflow, max normal number or infinity
-
-assign FMADD_PN_MUL_wire_exception_cond1 = (FMADD_PN_MUL_input_rm == 3'b000 | FMADD_PN_MUL_input_rm == 3'b100) | ((!FMADD_PN_MUL_input_sign) & (FMADD_PN_MUL_input_rm == 3'b011)) | ((FMADD_PN_MUL_input_sign) & (FMADD_PN_MUL_input_rm == 3'b010));
-assign FMADD_PN_MUL_wire_output_interim_1 = (FMADD_PN_MUL_wire_exception_cond1) ? ({ FMADD_PN_MUL_input_sign, ({exp+1{1'b1}}), ({man+man+4{1'b0}}) }) : ({ FMADD_PN_MUL_input_sign, ({{exp{1'b1}}, 1'b0}), ({man+man+4{1'b1}}) });
-//condition to select output, either exception or result from main, in case 9th bit (singke precision) of exp is high or bits from 8:0 are high then it is overflow
-assign FMADD_PN_MUL_wire_exception_cond2 = FMADD_PN_MUL_wire_exp_interim_6[exp+1] | (&FMADD_PN_MUL_wire_exp_interim_6[exp : 0]);
-//Selecting what to output exception or result coming form main
-assign FMADD_PN_MUL_output_no = (FMADD_PN_MUL_wire_exception_cond2) ? (FMADD_PN_MUL_wire_output_interim_1) : ({FMADD_PN_MUL_input_sign, (FMADD_PN_MUL_wire_exp_interim_6[exp : 0]), FMADD_PN_MUL_wire_man_final}) ;
-//In case cond2 is high overflow flag is set to one
-assign FMADD_PN_MUL_output_overflow = FMADD_PN_MUL_wire_exception_cond2;
-
-//in case shifts are greater than M+N or subnormal numbers are getting multiplied with each other then sticky_PN will get high.
-assign FMADD_PN_MUL_output_sticky_PN = FMADD_PN_MUL_wire_shifts_overflow;
+assign FMADD_PN_MUL_output_no = {FMADD_PN_MUL_input_sign, FMADD_PN_MUL_wire_exp_interim_6, FMADD_PN_MUL_wire_man_final};
 
 //If mantissa after all the processing is zero than it means it has became zero due to shifting and sticky is one.
 assign FMADD_PN_MUL_wire_shifts_overflow = (!(|FMADD_PN_MUL_wire_man_final)) | (FMADD_PN_MUL_input_A_sub & FMADD_PN_MUL_input_B_sub);
+//in case shifts are greater than M+N or subnormal numbers are getting multiplied with each other then sticky_PN will get high.
+assign FMADD_PN_MUL_output_sticky_PN = FMADD_PN_MUL_wire_shifts_overflow;
+
 
 
 endmodule

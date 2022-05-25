@@ -287,7 +287,7 @@ assign INPUT_VALIDATION_Bit_positive_infinity_Caught_Fadd =  ( INPUT_VALIDATION_
 
 assign INPUT_VALIDATION_Bit_negitive_infinity_Caught_Fadd =  ( INPUT_VALIDATION_input_opcode[0] & ( INPUT_VALIDATION_Bit_double_infinity & (INPUT_VALIDATION_input_ieee_A[std] & INPUT_VALIDATION_input_ieee_B[std]) ) );   
 
-assign INPUT_VALIDATION_Bit_positive_zero_Caught_Fadd = (INPUT_VALIDATION_input_opcode[0] & (INPUT_VALIDATION_Bit_double_zero & ( (~INPUT_VALIDATION_input_ieee_A[std]) & (~INPUT_VALIDATION_input_ieee_B[std]) ) ) )  ;   
+assign INPUT_VALIDATION_Bit_positive_zero_Caught_Fadd = (INPUT_VALIDATION_input_opcode[0] & ((INPUT_VALIDATION_Bit_double_zero & ( (~INPUT_VALIDATION_input_ieee_A[std]) & (~INPUT_VALIDATION_input_ieee_B[std]) ) ) | (INPUT_VALIDATION_Bit_Equal & INPUT_VALIDATION_Bit_xor_sign )) )  ;   
 
 assign INPUT_VALIDATION_Bit_negitive_zero_Caught_Fadd = (INPUT_VALIDATION_input_opcode[0] & (INPUT_VALIDATION_Bit_double_zero & ( INPUT_VALIDATION_Bit_xor_sign ) ) ) ;
 
@@ -305,7 +305,7 @@ assign INPUT_VALIDATION_Bit_Negative_No_Comp_B_Caught_Fsubb = ( (INPUT_VALIDATIO
 
 assign INPUT_VALIDATION_Bit_negitive_infinity_Caught_Fsubb =  ( INPUT_VALIDATION_input_opcode[1] & ( INPUT_VALIDATION_Bit_double_infinity & (INPUT_VALIDATION_Bit_xor_sign) ) );  //the resulting infinicty in this case would be a negative infinity
 
-assign INPUT_VALIDATION_Bit_positive_zero_Caught_Fsubb = (INPUT_VALIDATION_input_opcode[1] & ( (INPUT_VALIDATION_Bit_Equal) | ( ( (~INPUT_VALIDATION_input_ieee_A[std]) | (INPUT_VALIDATION_input_ieee_A[std] & (INPUT_VALIDATION_input_ieee_B[std]) ) ) & INPUT_VALIDATION_Bit_double_zero) )  ) & (~INPUT_VALIDATION_Bit_SNAN_Caught_Fsubb);
+assign INPUT_VALIDATION_Bit_positive_zero_Caught_Fsubb = (INPUT_VALIDATION_input_opcode[1] & ( (INPUT_VALIDATION_Bit_Equal & (~INPUT_VALIDATION_Bit_xor_sign)) | ( ( (~INPUT_VALIDATION_input_ieee_A[std]) | (INPUT_VALIDATION_input_ieee_A[std] & (INPUT_VALIDATION_input_ieee_B[std]) ) ) & INPUT_VALIDATION_Bit_double_zero) )  ) & (~INPUT_VALIDATION_Bit_SNAN_Caught_Fsubb);
 
 assign INPUT_VALIDATION_Bit_negitive_zero_Caught_Fsubb = (INPUT_VALIDATION_input_opcode[1] & (INPUT_VALIDATION_Bit_double_zero & (INPUT_VALIDATION_input_ieee_A[std] & (~INPUT_VALIDATION_input_ieee_B[std])) ) );
 
