@@ -18,7 +18,7 @@ module rvdff (
 		end
 		else always @(posedge clk or negedge rst_l)
 			if (rst_l == 0)
-				dout[WIDTH - 1:0] <= {{WIDTH{0}};
+				dout[WIDTH - 1:0] <= {WIDTH{1'b0}};
 			else
 				dout[WIDTH - 1:0] <= din[WIDTH - 1:0];
 	endgenerate
