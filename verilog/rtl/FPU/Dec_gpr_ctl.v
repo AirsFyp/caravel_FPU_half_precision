@@ -46,7 +46,7 @@ endgenerate
 integer p;
    always @(*) begin
        if(rst_l == 1'b0) begin
-          w0v = 32'h00000000;
+          w0v = 31'h00000000;
           for(p=1; p<32; p=p+1) begin
              gpr_in[p] = {XLEN{1'b0}};
           end

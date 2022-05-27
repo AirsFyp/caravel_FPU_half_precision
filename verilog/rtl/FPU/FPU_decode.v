@@ -101,7 +101,7 @@ module FPU_decode #(parameter FPLEN = 16)
       always @(posedge clk) begin
          if(rst_l == 1'b0 | illegal_config) 
          begin
-            control_signals_r <= 114'h0;
+            control_signals_r <= 115'h0;
          end
 
          else 
@@ -113,7 +113,7 @@ module FPU_decode #(parameter FPLEN = 16)
             end
             else if((~valid_execution) | ((~fpu_active) & (fpu_complete))) 
             begin
-               control_signals_r <= 114'h0;
+               control_signals_r <= 115'h0;
             end
             else 
             begin

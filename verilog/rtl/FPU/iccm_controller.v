@@ -71,7 +71,7 @@ module eb1_iccm_controller (
 					ctrl_fsm_ns = LOAD;
 				else
 					ctrl_fsm_ns = DONE;
-			default: ctrl_fsm_ns = RESET;
+			//default: ctrl_fsm_ns = RESET;
 		endcase
 	end
 	assign rx_byte_d = rx_byte_i;
@@ -82,7 +82,7 @@ module eb1_iccm_controller (
 	always @(posedge clk_i or negedge rst_ni)
 		if (!rst_ni) begin
 			we_q <= 1'b0;
-			addr_q <= 13'b0000000000000;
+			addr_q <= 14'b00000000000000;
 			rx_byte_q0 <= 8'b00000000;
 			rx_byte_q1 <= 8'b00000000;
 			rx_byte_q2 <= 8'b00000000;

@@ -53,8 +53,8 @@ module eb1_uart_rx_prog (
         s_IDLE :
           begin
             r_Rx_DV       <= 1'b0;
-            r_Clock_Count <= 0;
-            r_Bit_Index   <= 0;
+            r_Clock_Count <= 16'h0000;
+            r_Bit_Index   <= 3'b000;
              
             if (r_Rx_Data == 1'b0)          // Start bit detected
               r_SM_Main <= s_RX_START_BIT;
@@ -69,7 +69,7 @@ module eb1_uart_rx_prog (
               begin
                 if (r_Rx_Data == 1'b0)
                   begin
-                    r_Clock_Count <= 0;  // reset counter, found the middle
+                    r_Clock_Count <= 16'h0000;  // reset counter, found the middle
                     r_SM_Main     <= s_RX_DATA_BITS;
                   end
                 else
@@ -77,7 +77,7 @@ module eb1_uart_rx_prog (
               end
             else
               begin
-                r_Clock_Count <= r_Clock_Count + 1;
+                r_Clock_Count <= r_Clock_Count + 16'd1;
                 r_SM_Main     <= s_RX_START_BIT;
               end
           end // case: s_RX_START_BIT
@@ -88,23 +88,23 @@ module eb1_uart_rx_prog (
           begin
             if (r_Clock_Count < CLKS_PER_BIT-1)
               begin
-                r_Clock_Count <= r_Clock_Count + 1;
+                r_Clock_Count <= r_Clock_Count + 16'd1;
                 r_SM_Main     <= s_RX_DATA_BITS;
               end
             else
               begin
-                r_Clock_Count          <= 0;
+                r_Clock_Count          <= 16'h0000;
                 r_Rx_Byte[r_Bit_Index] <= r_Rx_Data;
                  
                 // Check if we have received all bits
                 if (r_Bit_Index < 7)
                   begin
-                    r_Bit_Index <= r_Bit_Index + 1;
+                    r_Bit_Index <= r_Bit_Index + 3'b001;
                     r_SM_Main   <= s_RX_DATA_BITS;
                   end
                 else
                   begin
-                    r_Bit_Index <= 0;
+                    r_Bit_Index <= 3'b000;
                     r_SM_Main   <= s_RX_STOP_BIT;
                   end
               end
@@ -117,13 +117,13 @@ module eb1_uart_rx_prog (
             // Wait CLKS_PER_BIT-1 clock cycles for Stop bit to finish
             if (r_Clock_Count < CLKS_PER_BIT-1)
               begin
-                r_Clock_Count <= r_Clock_Count + 1;
+                r_Clock_Count <= r_Clock_Count + 16'd1;
                 r_SM_Main     <= s_RX_STOP_BIT;
               end
             else
               begin
                 r_Rx_DV       <= 1'b1;
-                r_Clock_Count <= 0;
+                r_Clock_Count <= 16'h0000;
                 r_SM_Main     <= s_CLEANUP;
               end
           end // case: s_RX_STOP_BIT
