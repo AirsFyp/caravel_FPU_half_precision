@@ -101,8 +101,6 @@ module FPU_FSM_TOP(
     wire[2:0]fpu_sel;
     wire [31:0]fpu_result_rd_w;
 
-
-
     assign FPU_hp_result = (rst_l == 1'b0) ? 16'h0000 : (fpu_complete_rd & Active_Process) ? fpu_result_rd_w[15:0] : (fpu_complete & ~fpu_complete_rd & Active_Process) ? fpu_result_1 : 16'h0000;
     
     FPU_FSM FSM(
