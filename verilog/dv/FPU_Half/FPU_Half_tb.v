@@ -133,7 +133,7 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'h7C00);
             wait(mprj_io_0 == 16'h5124);
             wait(mprj_io_0 == 16'h6058);
-            wait(mprj_io_0 == 16'h0000);
+            wait(mprj_io_0 == 16'h8000);
             */
             // Observe Output pins [23:8] for FADD/FSUB
             /*
