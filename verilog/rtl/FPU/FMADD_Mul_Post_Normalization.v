@@ -104,9 +104,9 @@ assign PM_MUL_wire_sub_or_norm_op5 =
 assign FMADD_PN_LZD_wire_direction_shifts = (FMADD_PN_MUL_wire_op_5 & PM_MUL_wire_sub_or_norm_op5) | FMADD_PN_MUL_wire_op_4 | (FMADD_PN_MUL_input_A_sub & FMADD_PN_MUL_input_B_sub);
 
 //DTRS = Data To Right Shift
-assign FMADD_PN_MUL_wire_DTRS =  FMADD_PN_LZD_wire_direction_shifts ? FMADD_PN_MUL_input_multiplied_man : 48'b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000 ;
+assign FMADD_PN_MUL_wire_DTRS =  FMADD_PN_LZD_wire_direction_shifts ? FMADD_PN_MUL_input_multiplied_man : {(man+man+4){1'b0}} ;
 //DTLS = Data To Left Shift
-assign FMADD_PN_MUL_wire_DTLS =  FMADD_PN_LZD_wire_direction_shifts ? 48'b0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000_0000 : FMADD_PN_MUL_input_multiplied_man ;
+assign FMADD_PN_MUL_wire_DTLS =  FMADD_PN_LZD_wire_direction_shifts ? {(man+man+4){1'b0}} : FMADD_PN_MUL_input_multiplied_man ;
 
 //RS == Right Shifted
 assign FMADD_PN_MUL_wire_RS_data = ({1'b0, FMADD_PN_MUL_wire_DTRS}) >> FMADD_PN_MUL_wire_shifts_final;

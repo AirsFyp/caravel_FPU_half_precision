@@ -11,6 +11,6 @@ module FPU_move(rst_l,opcode,Move_Input_IEEE,Move_Output_IEEE);
   wire [Std : 0] Move_Output_IEEE; // Define reg becuase it is Output of IEEE754 32 Move Instruction 
    
   // New logic will  be
-  assign Move_Output_IEEE = (rst_l == 1'b0) ? 32'h00000000 :  (opcode[0] == 1'b1) ? Move_Input_IEEE : (opcode[1] == 1'b1) ? Move_Input_IEEE : 32'h00000000;
+  assign Move_Output_IEEE = (rst_l == 1'b0) ? { (Std+1){1'b0} } :  (opcode[0] == 1'b1) ? Move_Input_IEEE : (opcode[1] == 1'b1) ? Move_Input_IEEE : { (Std+1){1'b0} } ;
   
 endmodule

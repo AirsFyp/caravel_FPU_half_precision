@@ -19,8 +19,8 @@ module FPU_sign (rst_l,op,IEEE_A,IEEE_B,IEEE_out);
   	// New logic
   	assign Sign_A = (rst_l == 1'b0) ? 1'b0 : IEEE_A[Std];
   	assign Sign_B = (rst_l == 1'b0) ? 1'b0 : IEEE_B[Std];
-  	assign Exp_A  = (rst_l == 1'b0) ? 8'h00 : IEEE_A[Std - 1 : Std - Exp - 1];
-  	assign Mantissa_A = (rst_l == 1'b0) ? 23'h0 : IEEE_A[Man : 0];
-  	assign  IEEE_out = (rst_l == 1'b0) ? 32'h0 : (op[0]) ?  {Sign_B,Exp_A,Mantissa_A} : (op[1]) ? {~Sign_B,Exp_A,Mantissa_A} : (op[2]) ? {(Sign_A ^ Sign_B),Exp_A,Mantissa_A} : 32'h0; 
+    assign Exp_A  = (rst_l == 1'b0) ? {(Exp+1){1'b0}} : IEEE_A[Std - 1 : Std - Exp - 1];
+    assign Mantissa_A = (rst_l == 1'b0) ? {(Man+1){1'b0}} : IEEE_A[Man : 0];
+    assign  IEEE_out = (rst_l == 1'b0) ? {(Std+1){1'b0}} : (op[0]) ?  {Sign_B,Exp_A,Mantissa_A} : (op[1]) ? {~Sign_B,Exp_A,Mantissa_A} : (op[2]) ? {(Sign_A ^ Sign_B),Exp_A,Mantissa_A} : {(Std+1){1'b0}}; 
  
 endmodule  

@@ -80,8 +80,8 @@ reg [23:0] sfpu_op_r2;
 	end
 	
 	// FPU operands
-	assign fs1_d[15:0] =  	(rst_l == 1'b0) ?  {FPLEN{1'b0}} : (({FPLEN{valid_execution &  dec_i0_rs1_en_d &                  ~float_control[0]}} & gpr_i0_rs1_d[31:0]     ) |
-								     ({FPLEN{valid_execution & ~dec_i0_rs1_en_d & float_control[0]                  }} & fs1_data               ));
+	assign fs1_d[15:0] =  	(rst_l == 1'b0) ?  {FPLEN{1'b0}} : (({FPLEN{valid_execution & dec_i0_rs1_en_d & (~float_control[0])}} & gpr_i0_rs1_d[FPLEN-1:0]) | 
+															   ({FPLEN{valid_execution & ~dec_i0_rs1_en_d & float_control[0]                  }} & fs1_data  ));
 	assign Operand_Int = (rst_l == 1'b0) ? 32'h00000000 : (({32{valid_execution &  dec_i0_rs1_en_d &                  ~float_control[0]}} & gpr_i0_rs1_d[31:0]     )) ;
 	assign fs2_d[15:0] =  	(rst_l == 1'b0) ? {FPLEN{1'b0}} : (({FPLEN{valid_execution & float_control[1] }} & fs2_data       ));
 	

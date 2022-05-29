@@ -75,7 +75,7 @@ reg [31:0] Operand_Int;
     end
   end
 //assigment of interim register on outptu ports
-assign FPU_resultant = (rst_l) ? FPU_resultant_reg:32'h00000000;
+  assign FPU_resultant = (rst_l) ? FPU_resultant_reg:{std+1{1'b0}};
 assign S_Flags = (rst_l) ? S_Flags_reg:5'b00000 ;
 assign FPU_Result_rd = (rst_l) ? FPU_Result_rd_reg : 32'h00000000;
 
@@ -285,14 +285,14 @@ begin
    
  if (~rst_l)
    begin
-   FPU_resultant_reg <= 32'h00000000;
+     FPU_resultant_reg <= {(std+1){1'b0}};
    FPU_Result_rd_reg <= 32'h00000000;
    S_Flags_reg <= 5'b00000;
    end
 else if (Exception_flag_interim) 
    begin
    FPU_resultant_reg <= output_interim_input_validation_temp_storage;
-   FPU_Result_rd_reg <= output_interim_input_validation_temp_storage;
+     FPU_Result_rd_reg <= (std==15) ? {16'h0000,output_interim_input_validation_temp_storage[15:0]} : output_interim_input_validation_temp_storage;
    S_Flags_reg  <= { output_interim_input_validation_invalid_flag , output_interim_input_validation_Divide_By_Zero , 3'b000 } ;
    end
 
@@ -337,14 +337,14 @@ begin
 
   else if (sfpu_op[14] | vfpu_op[18])   //output selection logic for Float to int instruction FCVT.W.S
     begin
-    FPU_resultant_reg  <= 32'h00000000;
+      FPU_resultant_reg  <= {(std+1){1'b0}};
     FPU_Result_rd_reg <= output_interim_FLOAT_to_Int;
     S_Flags_reg <= {output_interim_Invalid_Flag_Float_To_Int,3'b000,output_interim_Inexact_Flag_Float_To_Int};
     end    
 
   else if (sfpu_op[9] | sfpu_op[10] | sfpu_op[11] | (|vfpu_op[10:5]))  //output selection for comparision instructions
     begin
-    FPU_resultant_reg  <= 32'h00000000;
+    FPU_resultant_reg  <= {(std+1){1'b0}};
     FPU_Result_rd_reg <= output_interim_Comparison;
     S_Flags_reg <= 5'b00000; 
     end
@@ -358,13 +358,13 @@ begin
 
   else if (sfpu_op[21] | vfpu_op[25])               //output slection for Fclass instructions
     begin
-     FPU_resultant_reg <= 32'h00000000;
+     FPU_resultant_reg <= {(std+1){1'b0}};
      FPU_Result_rd_reg <= output_interim_Fclass;
      S_Flags_reg <= 5'b00000; 
     end
   else    
     begin
-     FPU_resultant_reg <= 32'h00000000;
+     FPU_resultant_reg <= {(std+1){1'b0}};
      FPU_Result_rd_reg <= 32'h00000000;
      S_Flags_reg <= 5'b00000;
     end  

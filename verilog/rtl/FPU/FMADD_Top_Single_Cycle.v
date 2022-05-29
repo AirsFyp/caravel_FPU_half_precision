@@ -222,8 +222,8 @@ wire [2+exp+2*(man+2):0] input_interim_ADD_LANE_B;
 wire [2+exp+2*(man+2):0] output_interim_post_normalization_IEEE;
 
 //inputs to the FMADD LANE
-assign input_interim_ADD_LANE_A = ( |(FMADD_SUBB_input_opcode[1:0] ) ) ? output_interim_Extender_A : (| FMADD_SUBB_input_opcode[6:3]) ? output_interim_post_normalization_IEEE : 57'h000000000000000 ;
-assign input_interim_ADD_LANE_B =  (|(FMADD_SUBB_input_opcode[1:0] ) ) ? output_interim_Extender_B : (| FMADD_SUBB_input_opcode[6:3]) ? output_interim_Extender_B : 57'h000000000000000;
+assign input_interim_ADD_LANE_A = (rst_l) ? (( |(FMADD_SUBB_input_opcode[1:0] ) ) ? output_interim_Extender_A : (| FMADD_SUBB_input_opcode[6:3]) ? output_interim_post_normalization_IEEE : {3+exp+2*(man+2){1'b0}} ) : {3+exp+2*(man+2){1'b0}} ;
+assign input_interim_ADD_LANE_B = (rst_l) ? ((|(FMADD_SUBB_input_opcode[1:0] ) ) ? output_interim_Extender_B : (| FMADD_SUBB_input_opcode[6:3]) ? output_interim_Extender_B : {3+exp+2*(man+2){1'b0}} ) : {3+exp+2*(man+2){1'b0}};
 
 //exponent_Matching
 wire output_interim_Exponent_Mathcing_Sign;
@@ -306,6 +306,7 @@ FMADD_Post_Normalization_Add_Sub Post_Normalization_Add (
 defparam Post_Normalization_Add.std = std;
 defparam Post_Normalization_Add.exp = exp;
 defparam Post_Normalization_Add.man = man;
+defparam Post_Normalization_Add.lzd = lzd;	
 
 //Rounding Mode Module
 wire [exp:0] output_interim_Rounding_Block_Exp;

@@ -50,7 +50,7 @@ wire FLOAT_TO_INT_bit_exception_for_max_1_caught, FLOAT_TO_INT_bit_exception_for
 wire FLOAT_TO_INT_wire_hidden_bit_decision;
 
 //Setting the input to zero if rst_l or opcode_FI is low
-assign FLOAT_TO_INT_input_wire_float = (FLOAT_TO_INT_input_opcode_FI && rst_l) ? FLOAT_TO_INT_input_float : {32{1'b0}};
+assign FLOAT_TO_INT_input_wire_float = (FLOAT_TO_INT_input_opcode_FI && rst_l) ? FLOAT_TO_INT_input_float : {(std+1){1'b0}};
 
 //Mapping the data to 64bit precision std
 assign FLOAT_TO_INT_wire_float_mapped = {FLOAT_TO_INT_input_wire_float[std], (FLOAT_TO_INT_input_wire_float[std-1 : man+1] - bias[exp : 0] + 11'b011_1111_1111), ( {FLOAT_TO_INT_input_wire_float[man:0], {(51-man){1'b0}}} ) };

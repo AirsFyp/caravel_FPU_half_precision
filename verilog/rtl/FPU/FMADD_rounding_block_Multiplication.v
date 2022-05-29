@@ -52,8 +52,6 @@ assign FMADD_ROUND_MUL_wire_rounded_man = FMADD_ROUND_MUL_input_no[man+man+3 : m
 assign FMADD_ROUND_MUL_wire_rounded_exp = ((!FMADD_ROUND_MUL_input_no[man+man+3]) & (FMADD_ROUND_MUL_wire_rounded_man[man+1])) ?
 FMADD_ROUND_MUL_input_no[man+man+exp+4 : man+man+4]  + 1'b1 : FMADD_ROUND_MUL_input_no[man+man+exp+4 : man+man+4];
 
-wire [56:0] check;
-assign check = ({ FMADD_ROUND_MUL_input_no[man+man+exp+6], ({{exp{1'b1}}, 1'b0}), ({man+man+4{1'b1}}) });
 
 
 

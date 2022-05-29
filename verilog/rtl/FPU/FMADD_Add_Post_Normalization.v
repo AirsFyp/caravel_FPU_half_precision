@@ -56,7 +56,7 @@ assign Post_Normaliaation_EFF_Sub_interim_Exponent = Post_Normalization_input_ex
 
 //additio lanse
 assign Post_Normaliaation_EFF_add_interim_Exponent = Post_Normalization_input_exponent + Post_Normalization_input_Carry ; 
-assign Post_Normalization_Shifter_input_add = (Post_Normalization_input_Eff_add) ? Post_Normalization_input_Mantissa : 48'h000000000000;
+assign Post_Normalization_Shifter_input_add = (Post_Normalization_input_Eff_add) ? Post_Normalization_input_Mantissa : {(man+man+4){1'b0}};
 assign Post_Normalization_Shifter_Output_add = (Post_Normalization_input_Carry) ? { Post_Normalization_input_Carry,Post_Normalization_Shifter_input_add[man+man+3:1] } : Post_Normalization_Shifter_input_add[man+man+3:0]  ;
 
 //Output Selestion and Round bits extarcion
@@ -66,7 +66,7 @@ assign Post_Normalization_output_Mantissa = Post_Normalization_Mantissa_interim_
 assign Post_Normalization_output_Round = Post_Normalization_Mantissa_interim_48[man] ;
 assign Post_Normalization_output_Guard = Post_Normalization_Mantissa_interim_48[man+1];
 assign Post_Normalization_output_Sticky = ( (|Post_Normalization_Mantissa_interim_48[man-1:0]) | Post_Normalization_input_Guard | Post_Normalization_input_Round | Post_Normalization_input_Sticky);
-assign Post_Normalization_output_exponent = (Post_Normalization_input_Eff_sub) ? {1'b0,Post_Normaliaation_EFF_Sub_interim_Exponent} : Post_Normaliaation_EFF_add_interim_Exponent;
+assign Post_Normalization_output_exponent = (Post_Normalization_input_Eff_sub) ? Post_Normaliaation_EFF_Sub_interim_Exponent : Post_Normaliaation_EFF_add_interim_Exponent;
 
 
 endmodule
