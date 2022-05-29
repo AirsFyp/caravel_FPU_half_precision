@@ -100,8 +100,12 @@ module FPU_FSM_TOP(
     wire IV_exception;
     wire[2:0]fpu_sel;
     wire [31:0]fpu_result_rd_w;
+    
+
+
 
     assign FPU_hp_result = (rst_l == 1'b0) ? 16'h0000 : (fpu_complete_rd & Active_Process) ? fpu_result_rd_w[15:0] : (fpu_complete & ~fpu_complete_rd & Active_Process) ? fpu_result_1 : 16'h0000;
+    
     
     FPU_FSM FSM(
                 .clk(clk),
@@ -189,13 +193,13 @@ module FPU_FSM_TOP(
     Execution Excecution_Unit(
                             .clk(clk),
                             .rst_l(rst_l),
-                            .RS1_d(RS1_d),
-                            .RS2_d(RS2_d),
+                            .RS1_d_w(RS1_d),
+                            .RS2_d_w(RS2_d),
                             .result(result),
-                            .Flag_ADDI(Flag_ADDI),
-                            .Flag_LI(Flag_LI),
+                            .Flag_ADDI_w(Flag_ADDI),
+                            .Flag_LI_w(Flag_LI),
                             .Activation_Signal(Activation_Signal),
-                            .Flag_Reset(Flag_Reset),
+                            .Flag_Reset_w(Flag_Reset),
                             .fpu_active(fpu_active),
                             .illegal_config(illegal_config),
                             .valid_execution(valid_execution),

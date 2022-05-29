@@ -17,10 +17,9 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     wire [2:0] fpu_rnd,Fpu_Frm;
     wire [11:0]IMM_ADDI,CSR_Addr;
     wire [31:0]IMM_LI;
-    reg [4:0]rd;
+    reg [4:0]rd,rd_wb;
     wire [4:0] rd_address;
     wire [4:0]rs1,rs2,rs1_address,rs2_address;
-    //reg [31:0]Instruction_reg;
     wire [31:0]gpr_rs1,gpr_rs2;
     wire [2:0] Function_CSR;
     wire [31:0] CSR_Read_Data,CSR_Write_Data;
@@ -32,20 +31,21 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     wire write_en;
     wire illegal_instr;
     wire [23:0]sfpu_op_w;
+    wire Flag_CSR_r1;
+    wire CSR_Read_r1;
+    wire [31:0] CSR_Read_Data_r1;
 
+    rvdffsc    #(1) CSR_Flag_ff (.clk(clk), .rst_l(rst_l), .en(Flag_CSR), .clear(~Flag_CSR), .din(Flag_CSR), .dout(Flag_CSR_r1));
+    rvdffsc    #(1) CSR_Read_ff (.clk(clk), .rst_l(rst_l), .en(Flag_CSR), .clear(~Flag_CSR), .din((CSR_Read & ~fpu_active)), .dout(CSR_Read_r1));
+    rvdffsc    #(32) CSR_Read_Data_ff (.clk(clk), .rst_l(rst_l), .en(Flag_CSR), .clear(~Flag_CSR), .din(CSR_Read_Data), .dout(CSR_Read_Data_r1));
+    
     always @(posedge clk)
     begin
-       /* if (rst_l)
-            Instruction_reg <= Instruction;
-        else
-            Instruction_reg <= 32'h00000000;
-        */
-
         if (rst_l)
         begin
-            CSR_Read_Data_r <= CSR_Read_Data;
-            CSR_Read_r <= (CSR_Read & ~fpu_active);
-            Flag_CSR_r <= Flag_CSR;
+            CSR_Read_Data_r <= CSR_Read_Data_r1;
+            CSR_Read_r <= CSR_Read_r1;
+            Flag_CSR_r <= Flag_CSR_r1;
         end
         else
         begin
@@ -54,12 +54,8 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
             Flag_CSR_r <= 1'b0;
         end
 
-        rd = (~rst_l) ? 5'b00000 : (Instruction[11:7] != 5'b00000) ? Instruction[11:7] : 5'b00000;
-
-        //Flag_ADDI = (~rst_l) ? 1'b0 : (Instruction[6:0] == 7'b0010011) ? 1'b1 : 1'b0;
-        //Flag_LI = (~rst_l) ? 1'b0 : (Instruction[6:0] == 7'b0110111) ? 1'b1 : 1'b0;
-        //RS2_d = (~rst_l) ? 32'h00000000 : Flag_LI ? IMM_LI : (Flag_ADDI) ? {{20{IMM_ADDI[11]}},IMM_ADDI} : gpr_rs2;
-        //RS1_d = (~rst_l) ? 32'h00000000 : gpr_rs1;
+        rd <= (~rst_l) ? 5'b00000 : (Instruction[11:7] != 5'b00000) ? Instruction[11:7] : 5'b00000;
+        rd_wb <= (~rst_l) ? 5'b00000 : rd;
 
     end
 
@@ -71,7 +67,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
                             .raddr0(rs1),
                             .raddr1(rs2),
                             .wen0(write_en),
-                            .waddr0(rd),
+                            .waddr0(rd_wb),
                             .wd0((CSR_Read_r) ? CSR_Read_Data_r : (fpu_complete_rd & (~Activation_Signal) & (~CSR_Read_r)) ? fpu_result_rd_w : result),
                             .rd0(gpr_rs1),
                             .rd1(gpr_rs2),
@@ -129,8 +125,8 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
 
 
     // INTEGER REGISTER  FILE ASSIGNEMENTS
-    assign rs1_en = (~rst_l) ? 1'b0 : ((Instruction[11:7] != 5'b00000) & (~fpu_active)) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[0] : 1'b0;
-    assign rs2_en = (~rst_l) ? 1'b0 : (Instruction[11:7] != 5'b00000) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[1] : 1'b0;
+    assign rs1_en = (~rst_l) ? 1'b0 : ((Instruction[19:15] != 5'b00000) & (~fpu_active)) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[0] : 1'b0;
+    assign rs2_en = (~rst_l) ? 1'b0 : ((Instruction[24:20] != 5'b00000) & (~fpu_active) & (~Flag_CSR)) ? 1'b1 : (fpu_active & ~illegal_instr) ? scalar_control[1] : 1'b0;
     assign rs1 = (~rst_l) ? 5'b00000 : (Flag_ADDI) ? Instruction[19:15] : ((Function_CSR == 3'b001) & Flag_CSR) ? Instruction[19:15] : (fpu_active & ~illegal_instr) ? rs1_address : 5'b00000;
     assign rs2 = (~rst_l) ? 5'b00000 : (fpu_active & ~illegal_instr) ? rs2_address : 5'b00000;
     assign RS2_d = (~rst_l) ? 32'h00000000 : Flag_LI ? IMM_LI : (Flag_ADDI) ? {{20{IMM_ADDI[11]}},IMM_ADDI} : gpr_rs2;
@@ -140,7 +136,7 @@ module Main_Decode(clk,rst_l,Instruction,S_flag,Flag_LI,Flag_ADDI,RS1_d,RS2_d,Ac
     // CSRRW & CSRRWI instructions ASSIGNEMENTS
     assign Flag_CSR = (~rst_l) ? 1'b0 : (Instruction[6:0] == 7'b1110011) ? 1'b1 : 1'b0;
     assign Function_CSR = (~rst_l) ? 3'b000 : (Flag_CSR) ? Instruction[14:12] : 3'b000;
-    assign CSR_Addr = (~rst_l) ? 12'h000 : (fpu_active & (~illegal_instr) & (~fpu_complete)) ? 12'h001 : Instruction[31:20];
+    assign CSR_Addr = (~rst_l) ? 12'h000 : (fpu_active & (~illegal_instr) & (~fpu_complete)) ? 12'h002 : Instruction[31:20];
     assign CSR_Read = (~rst_l) ? 1'b0 : ((Instruction[11:7] != 5'b00000) & Flag_CSR) ? 1'b1 : (fpu_active & (~illegal_instr) & (~fpu_complete)) ? 1'b1 : 1'b0;
     assign CSR_Write = (~rst_l) ? 1'b0 : (Flag_CSR) ? 1'b1 : (fpu_active & (~illegal_instr) & fpu_complete) ? 1'b1 : 1'b0;
     assign CSR_Write_Data = (~rst_l) ? 32'h00000000 : (Flag_CSR & (Function_CSR == 3'b101)) ? {27'h0000000,Instruction[19:15]} : RS1_d;

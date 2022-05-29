@@ -36,6 +36,8 @@ wire [FPLEN-1:0]           fpu_result_rx;
 wire [4:0] fpu_flags;
 wire [31:0]FPU_Result_rd,Operand_Int;
 
+reg [23:0] sfpu_op_r2;
+
 // sfpu_op [0]  = fadd
 // sfpu_op [1]  = fsub
 // sfpu_op [2]  = fmul
@@ -61,16 +63,19 @@ wire [31:0]FPU_Result_rd,Operand_Int;
 // sfpu_op [22] = unsign
 // sfpu_op [23] = sign
 
-        rvdffe    #(24) sfpu_op_ff  (.*, .clk(clk), .en(valid_execution & fpu_sel[0]),   .din(sfpu_op),   .dout(sfpu_op_r));
+        rvdffsc    #(24) sfpu_op_ff (.clk(clk), .rst_l(rst_l), .en(valid_execution & fpu_sel[0]), .clear((/*(~valid_execution & ~fpu_active) & */fpu_complete)), .din(sfpu_op), .dout(sfpu_op_r));  
+		//rvdffe    #(24) sfpu_op_ff  (.*, .clk(clk), .en(valid_execution & fpu_sel[0]),   .din(sfpu_op),   .dout(sfpu_op_r));
 	//rvdffe    #(FPLEN) fpu_result_ff  (.*, .clk(clk), .en(fpu_complete),   .din(fpu_result_exu),   .dout(fpu_result_1));
 	rvdffs    #(5)  fpu_flags_ff   (.*, .clk(clk), .en(fpu_complete),   .din(fpu_flags),        .dout(sflags));
 	
 	always @(posedge clk) begin
 		if(rst_l == 1'b0) begin
 			sfpu_alu_valid_r <= 1'b0;
+			sfpu_op_r2 <= 24'h000000;
 		end
 		else begin
-			sfpu_alu_valid_r <= (|sfpu_op[2:0]) | (|sfpu_op[17:5]) | (|sfpu_op[21:18]);
+			sfpu_alu_valid_r <= (|sfpu_op_r[2:0]) | (|sfpu_op_r[17:5]) | (|sfpu_op_r[21:18]);
+			sfpu_op_r2 <= sfpu_op_r;
 		end
 	end
 	
@@ -87,19 +92,19 @@ wire [31:0]FPU_Result_rd,Operand_Int;
 	FPU_Top Floating_Top (
 				.clk(clk),
 				.rst_l(rst_l),
-				.frm(fpu_rnd),
-				.sfpu_op(sfpu_op),
-				.vfpu_op(28'h0000000),
-				.fpu_sel(fpu_sel),
-				.Operand_A(fs1_d),
-				.Operand_B(fs2_d),
-				.Operand_C(fs3_d),    
+				.frm_w(fpu_rnd),
+				.sfpu_op_w(sfpu_op),
+				.vfpu_op_w(28'h0000000),
+				.fpu_sel_w(fpu_sel),
+				.Operand_A_w(fs1_d),
+				.Operand_B_w(fs2_d),
+				.Operand_C_w(fs3_d),    
 				.FPU_resultant(fpu_result_top), 
 				.S_Flags(fpu_flags),
 				.Exception_flag(IV_exception),
 				.interupt_Pin(),
 				.FPU_Result_rd(FPU_Result_rd),
-				.Operand_Int(Operand_Int)
+				.Operand_Int_w(Operand_Int)
 			      );
 
 
@@ -107,11 +112,11 @@ wire [31:0]FPU_Result_rd,Operand_Int;
 	assign fpu_complete = (rst_l == 1'b0) ? 1'b0 : (sfpu_alu_valid_r) ? 1'b1 : 1'b0;
 	
 	// FPU FPR Result
-	assign fpu_result_1 = (rst_l == 1'b0) ? {FPLEN{1'b0}} : (fpu_complete & (|sfpu_op_r[2:0] | (|sfpu_op_r[17:15]) | sfpu_op_r[7] | (|sfpu_op_r[20:18]) | (|sfpu_op_r[6:5]) | (|sfpu_op_r[13:12]))) ? fpu_result_top : {FPLEN{1'b0}};
+	assign fpu_result_1 = (rst_l == 1'b0) ? {FPLEN{1'b0}} : (fpu_complete & (|sfpu_op_r2[2:0] | (|sfpu_op_r2[17:15]) | sfpu_op_r2[7] | (|sfpu_op_r2[20:18]) | (|sfpu_op_r2[6:5]) | (|sfpu_op_r2[13:12]))) ? fpu_result_top : {FPLEN{1'b0}};
 								   
 	
 	// FPU GPR result
-	assign fpu_result_rd = (rst_l == 1'b0) ? {32{1'b0}} : (fpu_complete & ((|sfpu_op_r[11:9]) | sfpu_op_r[14] | sfpu_op_r[8] | sfpu_op_r[21])) ? FPU_Result_rd : 
+	assign fpu_result_rd = (rst_l == 1'b0) ? {32{1'b0}} : (fpu_complete & ((|sfpu_op_r2[11:9]) | sfpu_op_r2[14] | sfpu_op_r2[8] | sfpu_op_r2[21])) ? FPU_Result_rd : 
 								   {32{1'b0}};
-	assign fpu_complete_rd = (~rst_l) ? 1'b0 : (fpu_complete & ((|sfpu_op_r[11:8]) | sfpu_op_r[14] | sfpu_op_r[21])) ? 1'b1 : 1'b0;
+	assign fpu_complete_rd = (~rst_l) ? 1'b0 : (fpu_complete & ((|sfpu_op_r2[11:8]) | sfpu_op_r2[14] | sfpu_op_r2[21])) ? 1'b1 : 1'b0;
 endmodule

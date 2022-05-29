@@ -136,7 +136,7 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'h0000);
             */
             // Observe Output pins [23:8] for FADD/FSUB
-            
+            /*
             wait(mprj_io_0 == 16'h5848);
             wait(mprj_io_0 == 16'h3CE7);
             wait(mprj_io_0 == 16'h5A92);
@@ -153,6 +153,44 @@ module FPU_Half_tb();
             wait(mprj_io_0 == 16'hDCD8);
             wait(mprj_io_0 == 16'hDF04);
             wait(mprj_io_0 == 16'hBD78);
+            */
+            // Observe Output pins [23:8] for FMADD/FMSUB
+            /*
+            wait(mprj_io_0 == 16'h60CB);
+            wait(mprj_io_0 == 16'h3475);
+            wait(mprj_io_0 == 16'h6805);
+            wait(mprj_io_0 == 16'h78E5);
+            wait(mprj_io_0 == 16'h7C00);
+            wait(mprj_io_0 == 16'hDC34);
+            wait(mprj_io_0 == 16'h5698);
+            wait(mprj_io_0 == 16'hBD78);
+            wait(mprj_io_0 == 16'h60B9);
+            wait(mprj_io_0 == 16'h2252);
+            wait(mprj_io_0 == 16'h67F5);
+            wait(mprj_io_0 == 16'h78d8);
+            wait(mprj_io_0 == 16'h7c00);
+            wait(mprj_io_0 == 16'h5d7e);
+            wait(mprj_io_0 == 16'h63dc);
+            wait(mprj_io_0 == 16'h3d78);
+            */
+            // Observe Output pins [23:8] for FNMADD/FNMSUB
+            
+            wait(mprj_io_0 == 16'hE0B9);
+            wait(mprj_io_0 == 16'hA252);
+            wait(mprj_io_0 == 16'hE7F5);
+            wait(mprj_io_0 == 16'hF8D8);
+            wait(mprj_io_0 == 16'hFC00);
+            wait(mprj_io_0 == 16'hDD7E);
+            wait(mprj_io_0 == 16'hE3DC);
+            wait(mprj_io_0 == 16'hBD78);
+            wait(mprj_io_0 == 16'hE0CB);
+            wait(mprj_io_0 == 16'hB475);
+            wait(mprj_io_0 == 16'hE805);
+            wait(mprj_io_0 == 16'hF8E5);
+            wait(mprj_io_0 == 16'hfc00);
+            wait(mprj_io_0 == 16'h5c34);
+            wait(mprj_io_0 == 16'hd698);
+            wait(mprj_io_0 == 16'h3d78);
             
             $display("MPRJ-IO state = %h", mprj_io[23:8]);  
 		

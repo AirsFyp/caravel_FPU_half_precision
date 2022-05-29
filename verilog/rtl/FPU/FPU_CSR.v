@@ -33,7 +33,10 @@ module FPU_CSR(clk,rst_l,CSR_Read,CSR_Write,CSR_Addr,CSR_Write_Data,CSR_Read_Dat
         begin
             fflag <= (fflag_w & CSR_Write) ? CSR_Write_Data[4:0] : (fcsr_w & CSR_Write) ? CSR_Write_Data[4:0] : (fpu_complete) ? (fflag[4:0] | S_flag[4:0]) : fflag;
             frm <= (frm_w & CSR_Write) ? CSR_Write_Data[2:0] : (fcsr_w & CSR_Write) ? CSR_Write_Data[7:5] : frm;
-            fcsr <= (fcsr_w & CSR_Write) ? {24'h00000,CSR_Write_Data[7:0]} : (fpu_complete) ? ({24'h000000,frm,(fflag[4:0] | S_flag[4:0])}) : fcsr;
+            fcsr <= (fcsr_w & CSR_Write) ? {24'h00000,CSR_Write_Data[7:0]} : 
+                    (frm_w & CSR_Write) ? ({24'h000000,CSR_Write_Data[2:0],fflag[4:0]}) : 
+                    (fflag_w & CSR_Write) ? ({24'h000000,frm,CSR_Write_Data[4:0]}) : 
+                    (fpu_complete) ? ({24'h000000,frm,(fflag[4:0] | S_flag[4:0])}) : fcsr;
         end
     end
 

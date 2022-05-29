@@ -13,7 +13,7 @@
 `include "LZD_comb.v"
 `include "LZD_mux.v"*/
 
-module FPU_Top (Operand_A,Operand_B,Operand_C, clk,rst_l, frm, sfpu_op,vfpu_op,fpu_sel,FPU_resultant, S_Flags, Exception_flag, interupt_Pin,FPU_Result_rd,Operand_Int);
+module FPU_Top (Operand_A_w,Operand_B_w,Operand_C_w, clk,rst_l, frm_w, sfpu_op_w,vfpu_op_w,fpu_sel_w,FPU_resultant, S_Flags, Exception_flag, interupt_Pin,FPU_Result_rd,Operand_Int_w);
 
 parameter std= 15;
 parameter man = 9;
@@ -23,13 +23,13 @@ parameter lzd = 3;
 
 
 //inputs
-input [std:0] Operand_A,Operand_B,Operand_C;
+input [std:0] Operand_A_w,Operand_B_w,Operand_C_w;
 input clk,rst_l;
-input [2:0] frm;
-input [23:0] sfpu_op;
-input [2:0]  fpu_sel;
-input [27:0] vfpu_op;
-input [31:0] Operand_Int;
+input [2:0] frm_w;
+input [23:0] sfpu_op_w;
+input [2:0]  fpu_sel_w;
+input [27:0] vfpu_op_w;
+input [31:0] Operand_Int_w;
 
 //output 
 output  [std:0]    FPU_resultant;
@@ -42,7 +42,38 @@ output [31:0]FPU_Result_rd;
 reg [std:0]    FPU_resultant_reg;
 reg[31:0] FPU_Result_rd_reg;
 reg [4:0]   S_Flags_reg;
+reg [std:0] Operand_A,Operand_B,Operand_C;
+reg [2:0] frm;
+reg [23:0] sfpu_op;
+reg [2:0]  fpu_sel;
+reg [27:0] vfpu_op;
+reg [31:0] Operand_Int;
 
+  always @(posedge clk)
+  begin
+    if(rst_l == 1'b0)
+    begin
+      Operand_A <= {(std+1){1'b0}};
+      Operand_B <= {(std+1){1'b0}};
+      Operand_C <= {(std+1){1'b0}};
+      frm <= 3'b000;
+      sfpu_op <= 24'h000000;
+      fpu_sel <= 3'b000;
+      vfpu_op <= 28'h0000000;
+      Operand_Int <= 32'h00000000;
+    end
+    else
+    begin
+      Operand_A <= Operand_A_w;
+      Operand_B <= Operand_B_w;
+      Operand_C <= Operand_C_w;
+      frm <= frm_w;
+      sfpu_op <= sfpu_op_w;
+      fpu_sel <= fpu_sel_w;
+      vfpu_op <= vfpu_op_w;
+      Operand_Int <= Operand_Int_w;
+    end
+  end
 //assigment of interim register on outptu ports
 assign FPU_resultant = (rst_l) ? FPU_resultant_reg:32'h00000000;
 assign S_Flags = (rst_l) ? S_Flags_reg:5'b00000 ;
